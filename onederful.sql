@@ -56,9 +56,9 @@ CREATE TABLE logs
     user_id BIGINT NOT NULL COMMENT '사용자 식별자 (FK)',
     activity VARCHAR(100) NOT NULL COMMENT '활동 유형',
     ip_address VARCHAR(100) NOT NULL COMMENT 'ip 주소',
-    method_id BIGINT NOT NULL COMMENT '요청 메서드 (ENUM)',
+    method VARCHAR(100) NOT NULL COMMENT '요청 메서드 (ENUM)',
     target_id BIGINT NOT NULL COMMENT '작업 대상 식별자',
-    requestUrl VARCHAR(200) NOT NULL COMMENT '로그 요청 url',
+    request_url VARCHAR(200) NOT NULL COMMENT '로그 요청 url',
     created_at DATETIME COMMENT '생성일자',
 
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
