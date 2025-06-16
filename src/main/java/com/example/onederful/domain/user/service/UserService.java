@@ -5,7 +5,10 @@ import com.example.onederful.domain.user.common.UserMapper;
 import com.example.onederful.domain.user.dto.*;
 import com.example.onederful.domain.user.entity.User;
 import com.example.onederful.domain.user.repository.UserRepository;
+import com.example.onederful.exception.CustomException;
+import com.example.onederful.exception.ErrorCode;
 import com.example.onederful.security.JwtUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,11 +21,11 @@ public class UserService {
     private final JwtUtil jwtUtil;
 
     // 회원가입
-    public SignupResponseDto signup(SignupRequestDto dto){
+    public ApiResponseDto signup(RequestDto dto){
         
         // 이메일 중복 확인
         userRepository.findByEmail(dto.getEmail()).ifPresent(
-                user -> {throw new IllegalArgumentException("등록된 이메일이 존재합니다.");}
+                user -> {throw new CustomException(ErrorCode.DUPLICATE_USER);}
         );
 
         // Dto → Entity
@@ -33,32 +36,52 @@ public class UserService {
 
         User savedUser = userRepository.save(user);
 
-        // data
-        UserResponseDto userResponseDto = UserMapper.userResponseDto(savedUser);
+        // ResponseBody data(유저 정보)
+        UserResponseDto data = UserMapper.data(savedUser);
 
-        return UserMapper.signupResponseDto(userResponseDto);
+        return UserMapper.signupResponse(data);
     }
 
 
     // 로그인
-    public LoginResponseDto login(LoginRequestDto dto){
+    public ApiResponseDto login(RequestDto dto){
         String username = dto.getUsername();
         String password = dto.getPassword();
 
         User user = userRepository.findByUsername(username).orElseThrow(
-                () -> new IllegalArgumentException("아이디가 일치하지 않습니다.")
+                () -> new CustomException(ErrorCode.BAD_REQUEST)
         );
         
         if(!passwordEncoder.matches(password,user.getPassword())){
-            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다");
+            throw new CustomException(ErrorCode.BAD_REQUEST);
         }
 
         // JWT Token
         String token = jwtUtil.generateToken(user);
 
-        // data
+        // ResponseBody data(Token)
         Tokeninfo data = UserMapper.token(token);
 
-        return UserMapper.LoginResponseDto(data);
+        return UserMapper.LoginResponse(data);
+    }
+
+
+    // 회원 정보 조회
+    public ApiResponseDto select(HttpServletRequest request){
+        
+        // 요청 헤더에서 토큰 가져오기
+        String authorizationHeader = request.getHeader("Authorization");
+        String token = authorizationHeader.substring(7);
+
+        // 토큰에서 Id 가져오기
+        Long userId = jwtUtil.extractId(token);
+
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new CustomException(ErrorCode.UNAUTHORIZED)
+        );
+
+        UserResponseDto data = UserMapper.data(user);
+
+        return UserMapper.selectResponse(data);
     }
 }
