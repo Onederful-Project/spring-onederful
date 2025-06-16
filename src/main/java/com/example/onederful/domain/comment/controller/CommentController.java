@@ -37,11 +37,18 @@ public class CommentController {
     @PatchMapping("/{comment_id}")
     public ResponseEntity<ResponseDto<UpdateCommentResponseDataDto>> updateComment(
             @PathVariable Long id, @RequestBody UpdateCommentRequestDto requestDto, @AuthenticationPrincipal AuthUser authUser
-            ){
+    ) {
         Long userId = authUser.getUserId();
         UpdateCommentResponseDataDto updateCommentResponseDataDto =
                 commentService.updateComment(id, requestDto.getContents(), userId);
         return ResponseEntity.ok(ResponseDto.success("댓글이 수정되었습니다.", updateCommentResponseDataDto));
     }
 
+    // 테스크별 댓글 조회
+    @GetMapping("/task/{task_id}")
+    public ResponseEntity<ResponseDto<List<CommentResponseDataDto>>> findAllCommentByTaskId(
+            @PathVariable Long taskId) {
+        List<CommentResponseDataDto> commentResponseDataDtoList = commentService.findAllCommentByTaskId(taskId);
+        return ResponseEntity.ok(ResponseDto.success("데스크 " + taskId + "에 달린 댓글 목록", commentResponseDataDtoList));
+    }
 }

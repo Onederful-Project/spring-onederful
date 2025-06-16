@@ -1,5 +1,6 @@
 package com.example.onederful.domain.comment.service;
 
+import com.example.onederful.domain.comment.dto.CommentResponseDataDto;
 import com.example.onederful.domain.comment.dto.CreateCommentResponseDataDto;
 import com.example.onederful.domain.comment.dto.ResponseDto;
 import com.example.onederful.domain.comment.dto.UpdateCommentResponseDataDto;
@@ -8,6 +9,9 @@ import com.example.onederful.domain.comment.repository.CommentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -38,5 +42,13 @@ public class CommentService {
 
         comment.update(contents);
         return new UpdateCommentResponseDataDto(comment.getId(), user.getName(), comment.getContents(),comment.getCreatedAt(), comment.getUpdatedAt());
+    }
+
+    public List<CommentResponseDataDto> findAllCommentByTaskId(Long taskId){
+        List<Comment> commentList = commentRepository.findAllByTaskIdOrderByCreatedAtDesc(taskId);
+
+        return commentList.stream()
+                .map(CommentResponseDataDto::from)
+                .collect(Collectors.toList());
     }
 }
