@@ -19,6 +19,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Comments;
+import org.springframework.cglib.core.Local;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -36,8 +38,8 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "content", nullable = false)
-    private String content;
+    @Column(name = "contents", nullable = false)
+    private String contents;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name= "task_id", nullable = false)
@@ -61,5 +63,11 @@ public class Comment {
     @Builder.Default
     @Column(name="is_deleted", nullable = false)
     private Boolean isDeleted = false;
+
+    public Comment(String contents, User user){
+        this.user = user;
+        this.contents = contents;
+        this.createdAt = LocalDateTime.now();
+    }
 
 }
