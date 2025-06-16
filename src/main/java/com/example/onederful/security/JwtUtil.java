@@ -1,7 +1,6 @@
 package com.example.onederful.security;
 
 import com.example.onederful.domain.user.entity.User;
-import com.example.onederful.domain.user.enums.Role;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SecurityException;
@@ -108,8 +107,8 @@ public class JwtUtil {
 
     /**
      * Token에 저장된 ID(기본키) 가져오기
-     * @param token
-     * @return
+     * @param token 검증된 JWT 토큰 (로그인 한 상태)
+     * @return ID값 
      */
     public Long extractId(String token){
         return extractAllClaims(token).get("id",Long.class);
