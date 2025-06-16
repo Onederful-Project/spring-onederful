@@ -70,4 +70,9 @@ public class Comment {
         this.createdAt = LocalDateTime.now();
     }
 
+    public void update(String contents){
+        this.contents = contents;
+        this.updatedAt = LocalDateTime.now();
+    }
+
 }
