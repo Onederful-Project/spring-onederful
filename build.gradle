@@ -40,6 +40,9 @@ dependencies {
 
 	// bcrypt
 	implementation 'at.favre.lib:bcrypt:0.10.2'
+
+	// OffsetDateTime 역직렬화 하기 위해 필요한 모듈
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 }
 
 tasks.named('test') {
