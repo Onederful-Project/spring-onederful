@@ -11,7 +11,7 @@ import java.util.Date;
 
 public class UserMapper {
 
-    public static User user (SignupRequestDto dto){
+    public static User user (RequestDto dto){
         return User.builder()
                 .username(dto.getUsername())
                 .email(dto.getEmail())
@@ -22,8 +22,8 @@ public class UserMapper {
                 .build();
     }
     
-    // ResponseBody에서 data
-    public static UserResponseDto userResponseDto (User user){
+    // ResponseBody data (유저 정보)
+    public static UserResponseDto data(User user){
         // LocalDateTime -> OffsetDateTime
         OffsetDateTime createAt = user.getCreatedAt().atOffset(ZoneOffset.UTC);
 
@@ -37,39 +37,50 @@ public class UserMapper {
         );
     }
 
-    // 회원가입 ResponseBody
-    public static SignupResponseDto signupResponseDto(UserResponseDto data){
-        Date date = new Date();
-        OffsetDateTime timestamp = date.toInstant().atOffset(ZoneOffset.UTC);
-
-        return new SignupResponseDto(
-                true,
-                "회원가입이 성공하였습니다",
-                data,
-                timestamp
-        );
-    }
-
-    // 토큰 담기
+    // ResponseBody date (Token)
     public static Tokeninfo token (String token){
 
         String newToken = token.substring(7);
 
         return new Tokeninfo(newToken);
     }
-    
-    public static LoginResponseDto LoginResponseDto (Tokeninfo data){
 
+    // ResponseBody createdAt
+    public static OffsetDateTime currentTime(){
         Date date = new Date();
-        OffsetDateTime timestamp = date.toInstant().atOffset(ZoneOffset.UTC);
+        return date.toInstant().atOffset(ZoneOffset.UTC);
+    }
 
-        return new LoginResponseDto(
+    // 회원가입 ResponseBody
+    public static ApiResponseDto signupResponse(UserResponseDto data){
+
+        return new ApiResponseDto(
+                true,
+                "회원가입이 성공하였습니다",
+                data,
+                currentTime()
+        );
+    }
+
+    // 로그인 ResponseBody 
+    public static ApiResponseDto LoginResponse (Tokeninfo data){
+
+        return new ApiResponseDto(
                 true,
                 "로그인이 완료되었습니다.",
                 data,
-                timestamp
+                currentTime()
         );
+    }
 
+    // 회원 정보 조회
+    public static ApiResponseDto selectResponse(UserResponseDto data){
+        return new ApiResponseDto(
+                true,
+                "사용자가 정보를 조회했습니다.",
+                data,
+                currentTime()
+        );
     }
 
 }
