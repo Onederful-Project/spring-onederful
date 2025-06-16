@@ -41,7 +41,7 @@ public class JwtFilter implements Filter {
             response.sendError(response.SC_UNAUTHORIZED,"JWT 토큰이 필요합니다.");
             return;
         }
-        
+
         // "Bearer" 빼고 확인
         String jwt = authorizationHeader.substring(7);
         
@@ -49,10 +49,9 @@ public class JwtFilter implements Filter {
         if(!jwtUtil.validateToken(jwt)){
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             response.getWriter().write("{\"error\": \"Unauthorized\"}");
+            return;
         }
 
         filterChain.doFilter(servletRequest,servletResponse);
-
-
     }
 }

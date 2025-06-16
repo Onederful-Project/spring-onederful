@@ -54,18 +54,14 @@ public class JwtUtil {
      */
     public String generateToken(User user){
 
+        Long id = user.getId();
         String username = user.getUsername();
-        String email = user.getEmail();
-        String name = user.getName();
-        Role role = user.getRole();
         Date date = new Date();
 
         return BEARER_PREFIX +
                 Jwts.builder()
                         .setSubject(username)
-                        .claim("role", role)
-                        .claim("email", email)
-                        .claim("name", name)
+                        .claim("id",id)
                         .setIssuedAt(date)
                         .setExpiration(new Date(date.getTime()+ expirationTime))
                         .signWith(key,signatureAlgorithm)
@@ -97,7 +93,29 @@ public class JwtUtil {
         return false;
     }
 
-    
+    /**
+     * Token에 존재하는 모든 클레임(페이로드 값)을 추출
+     * @param token 검증된 JWT 토큰 (로그인 한 상태)
+     * @return 클라임 객체
+     */
+    public Claims extractAllClaims(String token){
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
+    /**
+     * Token에 저장된 ID(기본키) 가져오기
+     * @param token
+     * @return
+     */
+    public Long extractId(String token){
+        return extractAllClaims(token).get("id",Long.class);
+    }
+
+
 
 
 }
