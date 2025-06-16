@@ -17,7 +17,6 @@ public class SignupRequestDto {
 
     @NotBlank
     @Email(message = "올바른 형식의 이메일 주소를 입력해주세요")
-
     @NotBlank
     private String email;
 
