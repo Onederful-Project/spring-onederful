@@ -8,7 +8,7 @@ import com.example.onederful.domain.task.service.TaskService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -40,7 +40,8 @@ public class TaskController {
 
         taskService.createTask(request);
         return ResponseEntity.ok(
-            CommonResponse.create(true, "업무 생성 성공", null, LocalDateTime.now()));
+            CommonResponse.create(true, "업무 생성 성공", null,
+                OffsetDateTime.now()));
     }
 
     @GetMapping("/{id}")
@@ -49,7 +50,8 @@ public class TaskController {
         TaskResponse response = taskService.findTask(id);
 
         return ResponseEntity.ok(
-            CommonResponse.create(true, "업무 상세조회 성공", response, LocalDateTime.now()));
+            CommonResponse.create(true, "업무 상세조회 성공", response,
+                OffsetDateTime.now()));
     }
 
     @GetMapping
@@ -59,13 +61,14 @@ public class TaskController {
         @RequestParam(defaultValue = "") String keyword,
         @RequestParam(defaultValue = "TODO") ProcessStatus status
     ) {
-        Pageable pageable = PageRequest.of(page - 1, size, Direction.ASC, "dueAt");
+        Pageable pageable = PageRequest.of(page - 1, size, Direction.ASC, "dueDate");
 
         Page<TaskResponse> response = taskService.findTasks(pageable, keyword,
             status);
 
         return ResponseEntity.ok(
-            CommonResponse.create(true, "업무 리스트 조회 성공", response, LocalDateTime.now()));
+            CommonResponse.create(true, "업무 리스트 조회 성공", response,
+                OffsetDateTime.now()));
     }
 
     @DeleteMapping("/{id}")
@@ -74,7 +77,8 @@ public class TaskController {
         taskService.deleteTask(id);
 
         return ResponseEntity.ok(
-            CommonResponse.create(true, "업무 삭제 성공", null, LocalDateTime.now()));
+            CommonResponse.create(true, "업무 삭제 성공", null,
+                OffsetDateTime.now()));
     }
 
     @PutMapping("/{id}")
@@ -84,6 +88,6 @@ public class TaskController {
         taskService.updateTask(id, request);
 
         return ResponseEntity.ok(
-            CommonResponse.create(true, "업무 수정 성공", null, LocalDateTime.now()));
+            CommonResponse.create(true, "업무 수정 성공", null, OffsetDateTime.now()));
     }
 }
