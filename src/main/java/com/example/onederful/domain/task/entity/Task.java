@@ -98,4 +98,8 @@ public class Task {
         this.isDeleted = true;
         this.deletedAt = LocalDateTime.now();
     }
+
+    public void taskStart() {
+        this.startedAt = LocalDateTime.now();
+    }
 }

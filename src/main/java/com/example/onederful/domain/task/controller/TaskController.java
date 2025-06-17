@@ -61,12 +61,12 @@ public class TaskController {
     public ResponseEntity<CommonResponse<Page<TaskResponse>>> findTasks(
         @RequestParam(defaultValue = "1") @Min(1) int page,
         @RequestParam(defaultValue = "5") @Min(5) int size,
-        @RequestParam(defaultValue = "") String keyword,
+        @RequestParam(defaultValue = "") String search,
         @RequestParam(defaultValue = "TODO") ProcessStatus status
     ) {
         Pageable pageable = PageRequest.of(page - 1, size, Direction.ASC, "dueDate");
 
-        Page<TaskResponse> response = taskService.findTasks(pageable, keyword,
+        Page<TaskResponse> response = taskService.findTasks(pageable, search,
             status);
 
         return ResponseEntity.ok(

@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface TaskRepository extends JpaRepository<Task, Long> {
 
-    @Query("SELECT t FROM Task t WHERE (t.title LIKE %:keyword% OR t.description LIKE %:keyword%) AND t.status = :status")
-    Page<Task> findTasks(@Param("keyword") String keyword, @Param("status") ProcessStatus status,
+    @Query("SELECT t FROM Task t WHERE (t.title LIKE %:search% OR t.description LIKE %:search%) AND t.status = :status")
+    Page<Task> findTasks(@Param("search") String search, @Param("status") ProcessStatus status,
         Pageable pageable);
 }
