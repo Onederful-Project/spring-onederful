@@ -3,6 +3,7 @@ package com.example.onederful.domain.comment.controller;
 import com.example.onederful.domain.comment.dto.*;
 import com.example.onederful.domain.comment.service.CommentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -51,4 +52,12 @@ public class CommentController {
         List<CommentResponseDataDto> commentResponseDataDtoList = commentService.findAllCommentByTaskId(taskId);
         return ResponseEntity.ok(ResponseDto.success("데스크 " + taskId + "에 달린 댓글 목록", commentResponseDataDtoList));
     }
+
+    // 댓글 삭제
+    @DeleteMapping("/{comment_id}")
+    public ResponseEntity<ResponseDto<Void>> deleteComment(@PathVariable Long commentId){
+        commentService.deleteComment(commentId);
+        return ResponseEntity.ok(ResponseDto.success("댓글이 삭제되었습니다.", null));
+    }
+
 }

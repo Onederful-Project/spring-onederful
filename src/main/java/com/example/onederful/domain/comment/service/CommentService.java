@@ -51,4 +51,12 @@ public class CommentService {
                 .map(CommentResponseDataDto::from)
                 .collect(Collectors.toList());
     }
+
+    @Transactional
+    public void deleteComment(Long commentId){
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() ->new IllegalArgumentException("댓글을 찾을 수 없습니다."));
+
+        comment.delete();
+    }
 }
