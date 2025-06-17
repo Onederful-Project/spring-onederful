@@ -11,14 +11,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/comments")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class CommentController {
 
     private final CommentService commentService;
 
     // 댓글 생성
-    @PostMapping
+    @PostMapping("/comments")
     //public ResponseEntity<CreateCommentResponseDto> save (@AuthenticationPrincipal AuthUser authUser, @RequestBody CreateCommentRequestDto requestDto){
     public ResponseEntity<ResponseDto<CreateCommentResponseDataDto>> save(
             String username, @RequestBody CreateCommentRequestDto requestDto) {
@@ -35,7 +35,7 @@ public class CommentController {
     }
 
     // 댓글 수정
-    @PatchMapping("/{comment_id}")
+    @PatchMapping("/comments/{comment_id}")
     public ResponseEntity<ResponseDto<UpdateCommentResponseDataDto>> updateComment(
             @PathVariable Long id, @RequestBody UpdateCommentRequestDto requestDto, @AuthenticationPrincipal AuthUser authUser
     ) {
@@ -46,15 +46,25 @@ public class CommentController {
     }
 
     // 테스크별 댓글 조회
-    @GetMapping("/task/{task_id}")
+    @GetMapping("/comments/task/{task_id}")
     public ResponseEntity<ResponseDto<List<CommentResponseDataDto>>> findAllCommentByTaskId(
             @PathVariable Long taskId) {
         List<CommentResponseDataDto> commentResponseDataDtoList = commentService.findAllCommentByTaskId(taskId);
         return ResponseEntity.ok(ResponseDto.success("데스크 " + taskId + "에 달린 댓글 목록", commentResponseDataDtoList));
     }
 
+    // 내용으로 댓글 조회
+    @GetMapping("/search")
+    public ResponseEntity<ResponseDto<CommentResponseDataDto>> findCommentByContents(@RequestBody String contents){
+        List<CommentResponseDataDto> commentResponseDataDtoList = commentService.findCommentByContents(contents);
+        return ResponseEntity.ok(ResponseDto.success( contents + "가 포함된 댓글 목록 ", commentResponseDataDtoList));
+    }
+
+
+
+
     // 댓글 삭제
-    @DeleteMapping("/{comment_id}")
+    @DeleteMapping("/comments/{comment_id}")
     public ResponseEntity<ResponseDto<Void>> deleteComment(@PathVariable Long commentId){
         commentService.deleteComment(commentId);
         return ResponseEntity.ok(ResponseDto.success("댓글이 삭제되었습니다.", null));

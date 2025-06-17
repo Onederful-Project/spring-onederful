@@ -49,12 +49,24 @@ public class CommentService {
     }
 
     public List<CommentResponseDataDto> findAllCommentByTaskId(Long taskId){
-        List<Comment> commentList = commentRepository.findAllByTaskIdOrderByCreatedAtDesc(taskId);
+        List<Comment> commentListById = commentRepository.findAllByTaskIdOrderByCreatedAtDesc(taskId);
 
-        return commentList.stream()
+        return commentListById.stream()
                 .map(CommentResponseDataDto::from)
                 .collect(Collectors.toList());
     }
+
+
+    public List<CommentResponseDataDto> findCommentByContents(String contents){
+
+        List<Comment> commentListByContents = commentRepository.findByNameLike("%"+contents+"%");
+
+        return commentListByContents.stream()
+                .filter(comment -> !comment.getIsDeleted())
+                .map(CommentResponseDataDto::from)
+                .collect(Collectors.toList());
+    }
+
 
     @Transactional
     public void deleteComment(Long commentId){
