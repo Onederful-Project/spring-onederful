@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import org.springframework.data.jpa.domain.Specification;
 
 import com.example.onederful.domain.log.entity.Log;
+import com.example.onederful.domain.log.enums.Activity;
 
 public class LogSpecification {
 	public static Specification<Log> hasUserId(Long userId) {
@@ -12,9 +13,9 @@ public class LogSpecification {
 			userId == null ? null : builder.equal(root.get("user").get("id"), userId);
 	}
 
-	public static Specification<Log> hasActivity(String activityStr) {
+	public static Specification<Log> hasActivity(Activity activity) {
 		return (root, query, builder) ->
-			activityStr == null ? null : builder.equal(root.get("activity"), activityStr);
+			activity == null ? null : builder.equal(root.get("activity"), activity);
 	}
 
 	public static Specification<Log> hasTargetId(Long targetId) {

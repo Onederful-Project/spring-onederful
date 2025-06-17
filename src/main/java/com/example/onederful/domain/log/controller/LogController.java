@@ -44,12 +44,12 @@ public class LogController {
 	@GetMapping("/api/activities")
 	public ResponseEntity<Page<LogResponseDto>> getLog(
 		@RequestParam(required = false) Long userId,
-		@RequestParam(required = false) String activityStr,
+		@RequestParam(required = false) String activity,
 		@RequestParam(required = false) Long targetId,
 		@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate start,
 		@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate end,
 		@PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
 	) {
-		return new ResponseEntity<>(logService.getLog(userId, activityStr, targetId, start, end, pageable), HttpStatus.OK);
+		return new ResponseEntity<>(logService.getLog(userId, activity, targetId, start, end, pageable), HttpStatus.OK);
 	}
 }

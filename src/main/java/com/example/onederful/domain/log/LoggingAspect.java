@@ -19,10 +19,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class LoggingAspect {
 
+	private final HttpRequestUtil httpRequestUtil;
 	private final LogService logService;
 
 	@Pointcut("execution(* com.example..LogService.addLogTest1()) || execution(* com.example..LogService.addLogTest2())")
 	public void serviceMethods() {}
+
+	@Pointcut("execution(* com.example..userService.login())")
+	public void loginMethods() {}
 
 	// 생성, 수정, 삭제
 	@AfterReturning(pointcut = "serviceMethods()", returning = "result")
@@ -30,18 +34,10 @@ public class LoggingAspect {
 		System.out.println("메서드 정상 실행 후: 로그 기록");
 
 		// HttpServletRequest으로부터 요청 ip, 메서드, url
-		HttpServletRequest request =
-			((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
-
-		// if (request == null) 예외 처리
-
-		String ip = request.getRemoteAddr();
-		String method = request.getMethod();
-		Method enumMethod = Method.valueOf(method);
-		String url = request.getRequestURI();
+		HttpRequestUtil.RequestInfo request = httpRequestUtil.getRequestInfo();
 
 		// 로그 저장
-		logService.saveLog(ip, enumMethod, url, result);
+		logService.saveLog(request.getIp(), request.getMethod(), request.getUrl(), request.getUserId(), result);
 	}
 
 	// 상태 변경
@@ -59,5 +55,6 @@ public class LoggingAspect {
 	//	logService.saveLog();
 	// }
 
-	//로그인/로그아웃
+	// 로그인/로그아웃
+
 }

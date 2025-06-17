@@ -16,6 +16,9 @@ import com.example.onederful.domain.log.repository.LogRepository;
 import com.example.onederful.domain.log.repository.LogSpecification;
 import com.example.onederful.domain.user.entity.User;
 import com.example.onederful.domain.user.enums.Role;
+import com.example.onederful.domain.user.repository.UserRepository;
+import com.example.onederful.exception.CustomException;
+import com.example.onederful.exception.ErrorCode;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -35,17 +38,14 @@ public class LogService {
 	}
 
 	public Page<LogResponseDto> getLog(
-		Long userId,
-		String activityStr,
-		Long targetId,
-		LocalDate start,
-		LocalDate end,
-		Pageable pageable) {
+		Long userId, String activityStr, Long targetId,
+		LocalDate start, LocalDate end, Pageable pageable) {
 
 		// 들어온 조건 여부로 동적 쿼리 설정
+		Activity activity = (activityStr != null) ? Activity.valueOf(activityStr) : null;
 		Specification<Log> spec =
 			LogSpecification.hasUserId(userId)
-			.and(LogSpecification.hasActivity(activityStr))
+			.and(LogSpecification.hasActivity(activity))
 			.and(LogSpecification.hasTargetId(targetId))
 			.and(LogSpecification.betweenDates(start, end));
 
@@ -54,18 +54,11 @@ public class LogService {
 	}
 
 	@Transactional
-	public void saveLog(String ip, Method method, String url, Object result) {
-		// TODO: 로그인한 정보를 토대로 User 가져오도록 구현
-		// 로직 구현용 더미유저 하드 코딩 내용
-		User dummyUser = User.builder()
-			.email("dummy@example.com")
-			.password("password")
-			.name("Dummy User")
-			.role(Role.USER)
-			.isDeleted(false)
-			.build();
-		userRepositry.save(dummyUser);
-		//User dummyUser = userRepositry.findById(1L).get();
+	public void saveLog(String ip, Method method, String url, Long userId, Object result) {
+		// 현재 유저 조회
+		User user  = userRepositry.findById(userId).orElseThrow(
+			() -> new CustomException(ErrorCode.UNAUTHORIZED)
+		);
 
 		// TODO: 어떤 활동인지, 대상 id 찾기
 		// 활동 유형 -> 요청 메서드와 url로 일치하는 활동 유형 찾기
@@ -93,7 +86,7 @@ public class LogService {
 		// if (activity == null || targetId == null) 예외 처리
 
 		Log log = Log.builder()
-			.user(dummyUser)
+			.user(user)
 			.activity(activity)
 			.ipAddress(ip)
 			.method(method)

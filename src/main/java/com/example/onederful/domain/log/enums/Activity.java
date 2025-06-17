@@ -10,8 +10,8 @@ public enum Activity {
 	// COMMENT_CREATED,
 	// COMMENT_UPDATED,
 	// COMMENT_DELETED,
-	// USER_LOGGED_IN,
-	// USER_LOGGED_OUT,
+	USER_LOGGED_IN("로그인 하였습니다."),
+	USER_LOGGED_OUT("로그아웃 하였습니다."),
 	TEST("테스트 입니다.");
 
 	private final String logMessage;
