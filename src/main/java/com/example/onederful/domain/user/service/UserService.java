@@ -2,7 +2,10 @@ package com.example.onederful.domain.user.service;
 
 import com.example.onederful.config.PasswordEncoder;
 import com.example.onederful.domain.user.common.UserMapper;
-import com.example.onederful.domain.user.dto.*;
+import com.example.onederful.domain.user.dto.ApiResponseDto;
+import com.example.onederful.domain.user.dto.RequestDto;
+import com.example.onederful.domain.user.dto.Tokeninfo;
+import com.example.onederful.domain.user.dto.UserResponseDto;
 import com.example.onederful.domain.user.entity.User;
 import com.example.onederful.domain.user.repository.UserRepository;
 import com.example.onederful.exception.CustomException;
@@ -21,11 +24,13 @@ public class UserService {
     private final JwtUtil jwtUtil;
 
     // 회원가입
-    public ApiResponseDto signup(RequestDto dto){
-        
+    public ApiResponseDto signup(RequestDto dto) {
+
         // 이메일 중복 확인
         userRepository.findByEmail(dto.getEmail()).ifPresent(
-                user -> {throw new CustomException(ErrorCode.DUPLICATE_USER);}
+            user -> {
+                throw new CustomException(ErrorCode.DUPLICATE_USER);
+            }
         );
 
         // Dto → Entity
@@ -44,15 +49,15 @@ public class UserService {
 
 
     // 로그인
-    public ApiResponseDto login(RequestDto dto){
+    public ApiResponseDto login(RequestDto dto) {
         String username = dto.getUsername();
         String password = dto.getPassword();
 
         User user = userRepository.findByUsername(username).orElseThrow(
-                () -> new CustomException(ErrorCode.BAD_REQUEST)
+            () -> new CustomException(ErrorCode.BAD_REQUEST)
         );
-        
-        if(!passwordEncoder.matches(password,user.getPassword())){
+
+        if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new CustomException(ErrorCode.BAD_REQUEST);
         }
 
@@ -67,17 +72,13 @@ public class UserService {
 
 
     // 회원 정보 조회
-    public ApiResponseDto select(HttpServletRequest request){
-        
-        // 요청 헤더에서 토큰 가져오기
-        String authorizationHeader = request.getHeader("Authorization");
-        String token = authorizationHeader.substring(7);
+    public ApiResponseDto select(HttpServletRequest request) {
 
         // 토큰에서 Id 가져오기
-        Long userId = jwtUtil.extractId(token);
+        Long userId = jwtUtil.extractId(request);
 
         User user = userRepository.findById(userId).orElseThrow(
-                () -> new CustomException(ErrorCode.UNAUTHORIZED)
+            () -> new CustomException(ErrorCode.UNAUTHORIZED)
         );
 
         UserResponseDto data = UserMapper.data(user);
