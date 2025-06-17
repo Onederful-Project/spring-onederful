@@ -1,6 +1,6 @@
 package com.example.onederful.domain.user.controller;
 
-import com.example.onederful.domain.comment.ApiResponseDto;
+import com.example.onederful.common.ApiResponseDto;
 import com.example.onederful.domain.user.common.LoginGroup;
 import com.example.onederful.domain.user.common.PasswordGroup;
 import com.example.onederful.domain.user.common.SignupGroup;

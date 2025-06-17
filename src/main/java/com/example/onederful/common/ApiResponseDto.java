@@ -1,4 +1,4 @@
-package com.example.onederful.domain.comment;
+package com.example.onederful.common;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

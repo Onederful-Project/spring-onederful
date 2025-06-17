@@ -1,6 +1,6 @@
 package com.example.onederful.exception;
 
-import com.example.onederful.domain.comment.ApiResponseDto;
+import com.example.onederful.common.ApiResponseDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
