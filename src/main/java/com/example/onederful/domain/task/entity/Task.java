@@ -52,8 +52,8 @@ public class Task {
     private Priority priority;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "manager_id", nullable = false)
-    private User manager;
+    @JoinColumn(name = "assignee_id", nullable = false)
+    private User assignee;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -84,12 +84,12 @@ public class Task {
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
 
-    public void updateTask(String title, String content, Priority priority, User manager,
+    public void updateTask(String title, String content, Priority priority, User assignee,
         LocalDateTime dueDate, ProcessStatus status) {
         this.title = title;
         this.description = content;
         this.priority = priority;
-        this.manager = manager;
+        this.assignee = assignee;
         this.dueDate = dueDate;
         this.status = status;
     }
