@@ -5,13 +5,9 @@ import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
-import com.example.onederful.domain.log.enums.Method;
 import com.example.onederful.domain.log.service.LogService;
 
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 @Aspect
@@ -22,15 +18,19 @@ public class LoggingAspect {
 	private final HttpRequestUtil httpRequestUtil;
 	private final LogService logService;
 
-	@Pointcut("execution(* com.example..LogService.addLogTest1()) || execution(* com.example..LogService.addLogTest2())")
-	public void serviceMethods() {}
+	@Pointcut(
+		"execution(* com.example..TaskService.createTask(..)) || " +
+		"execution(* com.example..TaskService.updateTask(..)) || " +
+		"execution(* com.example..TaskService.deleteTask(..))"
+	)
+	public void cudMethods() {}
 
 	@Pointcut("execution(* com.example..userService.login())")
 	public void loginMethods() {}
 
 	// 생성, 수정, 삭제
-	@AfterReturning(pointcut = "serviceMethods()", returning = "result")
-	public void logAfterReturning(JoinPoint joinPoint, Object result) {
+	@AfterReturning(pointcut = "cudMethods()", returning = "result")
+	public void logCudMethods(JoinPoint joinPoint, Object result) {
 		System.out.println("메서드 정상 실행 후: 로그 기록");
 
 		// HttpServletRequest으로부터 요청 ip, 메서드, url

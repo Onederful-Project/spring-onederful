@@ -8,14 +8,13 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.example.onederful.domain.log.dto.LogResponseDto;
-import com.example.onederful.domain.log.dto.addLogTestDto;
 import com.example.onederful.domain.log.entity.Log;
 import com.example.onederful.domain.log.enums.Activity;
 import com.example.onederful.domain.log.enums.Method;
 import com.example.onederful.domain.log.repository.LogRepository;
 import com.example.onederful.domain.log.repository.LogSpecification;
+import com.example.onederful.domain.task.dto.response.TaskResponse;
 import com.example.onederful.domain.user.entity.User;
-import com.example.onederful.domain.user.enums.Role;
 import com.example.onederful.domain.user.repository.UserRepository;
 import com.example.onederful.exception.CustomException;
 import com.example.onederful.exception.ErrorCode;
@@ -29,13 +28,6 @@ public class LogService {
 
 	private final LogRepository logRepository;
 	private final UserRepository userRepositry;
-
-	public addLogTestDto addLogTest1() {
-		return new addLogTestDto(1L);
-	}
-
-	public void addLogTest2() {
-	}
 
 	public Page<LogResponseDto> getLog(
 		Long userId, String activityStr, Long targetId,
@@ -60,30 +52,34 @@ public class LogService {
 			() -> new CustomException(ErrorCode.UNAUTHORIZED)
 		);
 
-		// TODO: 어떤 활동인지, 대상 id 찾기
 		// 활동 유형 -> 요청 메서드와 url로 일치하는 활동 유형 찾기
 		Activity activity = null;
-		if (method.equals(Method.POST) && url.contains("/activities")) {
-			activity = Activity.TEST;
+		if (method.equals(Method.POST) && url.contains("/tasks")) {
+			activity = Activity.TASK_CREATED;
 		}
-		else if (method.equals(Method.DELETE) && url.contains("/activities")) {
-			activity = Activity.TEST;
+		else if (method.equals(Method.PUT) && url.contains("/tasks")) {
+			activity = Activity.TASK_UPDATED;
 		}
+		else if (method.equals(Method.DELETE) && url.contains("/tasks")) {
+			activity = Activity.TASK_DELETED;
+		}
+
+		// if (activity == null) 예외 처리
 
 		// 대상 id -> 생성인 경우 응답에서 / 수정과 삭제의 경우 url 마지막에서 찾기
 		Long targetId = null;
-		if (method.equals(Method.POST)) {
-			if (result instanceof addLogTestDto) {
-				targetId = ((addLogTestDto) result).getId();
+		if (activity.equals(Activity.TASK_CREATED)) {
+			if (result instanceof TaskResponse) {
+				targetId = ((TaskResponse) result).getId();
 			}
 		}
-		else if (method.equals(Method.PATCH) || method.equals(Method.DELETE)) {
+		else {
 			String[] parts = url.split("/");
 			String lastPart = parts[parts.length - 1];  // /api/.../{id}의 id
 			targetId =  Long.parseLong(lastPart);
 		}
 
-		// if (activity == null || targetId == null) 예외 처리
+		// if (targetId == null) 예외 처리
 
 		Log log = Log.builder()
 			.user(user)

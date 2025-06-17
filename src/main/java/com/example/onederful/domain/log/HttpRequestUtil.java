@@ -39,10 +39,8 @@ public class HttpRequestUtil {
 		// 요청 url
 		String url = request.getRequestURI();
 
-		// 요청 헤더의 토큰으로부터 요청한 사용자의 userId
-		String authorizationHeader = request.getHeader("Authorization");
-		String token = authorizationHeader.substring(7);
-		Long userId = jwtUtil.extractId(token);
+		// 토큰으로부터 요청한 사용자의 userId
+		Long userId = jwtUtil.extractId(request);
 
 		return new RequestInfo(ip, enumMethod, url, userId);
 	}

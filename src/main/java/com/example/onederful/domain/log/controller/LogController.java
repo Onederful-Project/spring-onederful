@@ -5,22 +5,15 @@ import java.time.LocalDate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.repository.query.Param;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.onederful.domain.log.dto.LogResponseDto;
-import com.example.onederful.domain.log.dto.addLogTestDto;
-import com.example.onederful.domain.log.enums.Activity;
 import com.example.onederful.domain.log.service.LogService;
 
 import lombok.RequiredArgsConstructor;
@@ -31,16 +24,18 @@ public class LogController {
 
 	private final LogService logService;
 
-	@PostMapping("/api/activities")
-	public ResponseEntity<addLogTestDto> addLogTest1() {
-		return new ResponseEntity<>(logService.addLogTest1(), HttpStatus.OK);
-	}
-
-	@DeleteMapping("/api/activities/{id}")
-	public void addLogTest2(@PathVariable Long id) {
-		logService.addLogTest2();
-	}
-
+	/**
+	 * 활동 로그 조회
+	 *
+	 * 검색 조건:
+	 * @param userId 유저 아이디 (필수 N)
+	 * @param activity 활동 유형 (필수 N)
+	 * @param targetId 대상 ID (필수 N)
+	 * @param start 시작일 (필수 N)
+	 * @param end 종료일 (필수 N)
+	 * @param pageable 페이징을 위한 page, size, sort (필수 N)
+	 * @return 조회된 활동 로그
+	 */
 	@GetMapping("/api/activities")
 	public ResponseEntity<Page<LogResponseDto>> getLog(
 		@RequestParam(required = false) Long userId,
