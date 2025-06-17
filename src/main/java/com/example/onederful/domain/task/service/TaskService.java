@@ -59,9 +59,9 @@ public class TaskService {
     }
 
     @Transactional(readOnly = true)
-    public Page<TaskResponse> findTasks(Pageable pageable, String keyword, ProcessStatus status) {
+    public Page<TaskResponse> findTasks(Pageable pageable, String search, ProcessStatus status) {
 
-        Page<Task> tasks = taskRepository.findTasks(keyword, status, pageable);
+        Page<Task> tasks = taskRepository.findTasks(search, status, pageable);
 
         return tasks.map(TaskResponse::of);
     }
@@ -81,8 +81,10 @@ public class TaskService {
         User assignee = userRepository.findById(request.getAssigneeId()).orElseThrow();
 
         if (task.getStatus() == ProcessStatus.DONE) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                "DONE 상태는 이전 상태로 변경 할 수 없습니다.");
+            if (request.getStatus() != ProcessStatus.DONE) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "DONE 상태는 이전 상태로 변경 할 수 없습니다.");
+            }
         }
 
         if (task.getStatus() == ProcessStatus.TODO) {
@@ -90,6 +92,7 @@ public class TaskService {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "TODO -> IN_PROCESS으로만 상태 변경이 가능합니다.");
             }
+            task.taskStart();
         }
 
         if (task.getStatus() == ProcessStatus.IN_PROGRESS) {
@@ -102,7 +105,7 @@ public class TaskService {
         task.updateTask(request.getTitle(), request.getDescription(), request.getPriority(),
             assignee,
             request.getDueDate().toLocalDateTime(), request.getStatus());
-        
+
         return TaskResponse.of(task);
     }
 }
