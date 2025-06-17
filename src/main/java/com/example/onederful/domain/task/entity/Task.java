@@ -22,6 +22,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLRestriction;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -30,6 +31,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Builder
 @Getter
 @Table(name = "tasks")
+@SQLRestriction("is_deleted = false")
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
@@ -42,29 +44,29 @@ public class Task {
     @Column(name = "title", nullable = false)
     private String title;
 
-    @Column(name = "content", nullable = false)
-    private String content;
+    @Column(name = "description", nullable = false)
+    private String description;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "priority", nullable = false)
     private Priority priority;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="manager_id", nullable = false)
+    @JoinColumn(name = "manager_id", nullable = false)
     private User manager;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="user_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @Enumerated(EnumType.STRING)
-    @Column(name="status", nullable = false)
+    @Column(name = "status", nullable = false)
     private ProcessStatus status;
 
-    @Column(name="due_at", nullable = false)
-    private LocalDateTime dueAt;
+    @Column(name = "due_date", nullable = false)
+    private LocalDateTime dueDate;
 
-    @Column(name="started_at", nullable=false)
+    @Column(name = "started_at", nullable = false)
     private LocalDateTime startedAt;
 
     @CreatedDate
@@ -79,6 +81,21 @@ public class Task {
     private LocalDateTime deletedAt;
 
     @Builder.Default
-    @Column(name="is_deleted", nullable = false)
+    @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
+
+    public void updateTask(String title, String content, Priority priority, User manager,
+        LocalDateTime dueDate, ProcessStatus status) {
+        this.title = title;
+        this.description = content;
+        this.priority = priority;
+        this.manager = manager;
+        this.dueDate = dueDate;
+        this.status = status;
+    }
+
+    public void delete() {
+        this.isDeleted = true;
+        this.deletedAt = LocalDateTime.now();
+    }
 }

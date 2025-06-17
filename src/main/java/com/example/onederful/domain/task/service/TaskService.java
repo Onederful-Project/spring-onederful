@@ -5,8 +5,9 @@ import com.example.onederful.domain.task.dto.response.TaskResponse;
 import com.example.onederful.domain.task.entity.Task;
 import com.example.onederful.domain.task.enums.ProcessStatus;
 import com.example.onederful.domain.task.repository.TaskRepository;
-import com.example.onederful.domain.task.repository.UserRepository;
 import com.example.onederful.domain.user.entity.User;
+import com.example.onederful.domain.user.repository.UserRepository;
+import com.example.onederful.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,9 +21,8 @@ import org.springframework.web.server.ResponseStatusException;
 public class TaskService {
 
     private final TaskRepository taskRepository;
-
-    // 유저 레포지토리 임의로 task domain 내부 작성
     private final UserRepository userRepository;
+    private final JwtUtil jwtUtil;
 
     @Transactional
     public void createTask(TaskSaveRequest request) {
@@ -32,13 +32,13 @@ public class TaskService {
         // user (생성한 사람은 추후 로그인 연동 후 수정 예정)
         Task task = Task.builder()
             .title(request.getTitle())
-            .content(request.getContent())
+            .description(request.getDescription())
             .priority(request.getPriority())
             .status(request.getStatus())
             .manager(manager)
             .user(manager)
             .status(ProcessStatus.TODO)
-            .dueAt(request.getDueAt().atStartOfDay())
+            .dueDate(request.getDueDate().toLocalDateTime())
             .build();
 
         taskRepository.save(task);
@@ -63,16 +63,13 @@ public class TaskService {
     @Transactional
     public void deleteTask(Long id) {
 
-        // 권한 검사는 로그인 병합 이후
-
         Task task = taskRepository.findById(id).orElseThrow();
+
         task.delete();
     }
 
     @Transactional
     public void updateTask(Long id, TaskSaveRequest request) {
-
-        // 권한 검사는 로그인 병합 이후
 
         Task task = taskRepository.findById(id).orElseThrow();
         User manager = userRepository.findById(request.getManagerId()).orElseThrow();
@@ -96,7 +93,8 @@ public class TaskService {
             }
         }
 
-        task.updateTask(request.getTitle(), request.getContent(), request.getPriority(), manager,
-            request.getDueAt().atStartOfDay(), request.getStatus());
+        task.updateTask(request.getTitle(), request.getDescription(), request.getPriority(),
+            manager,
+            request.getDueDate().toLocalDateTime(), request.getStatus());
     }
 }
