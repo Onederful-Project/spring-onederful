@@ -6,6 +6,8 @@ import com.example.onederful.domain.comment.dto.ResponseDto;
 import com.example.onederful.domain.comment.dto.UpdateCommentResponseDataDto;
 import com.example.onederful.domain.comment.entity.Comment;
 import com.example.onederful.domain.comment.repository.CommentRepository;
+import com.example.onederful.domain.user.entity.User;
+import com.example.onederful.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,15 +22,15 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
 
-    public CreateCommentResponseDataDto save(String username, String contents) {
+    public CreateCommentResponseDataDto save(Long userId, String contents) {
 
-        User user = userRepository.findById(authUser.getUserId())
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
         Comment comment = new Comment(contents, user);
         Comment savedComment = commentRepository.save(comment);
 
-        return new CreateCommentResponseDataDto(savedComment.getId(), "홍길동", savedComment.getContents());
+        return new CreateCommentResponseDataDto(savedComment.getId(), user.getName(), savedComment.getContents());
 
     }
 
@@ -60,7 +62,7 @@ public class CommentService {
 
     public List<CommentResponseDataDto> findCommentByContents(String contents){
 
-        List<Comment> commentListByContents = commentRepository.findByNameLike("%"+contents+"%");
+        List<Comment> commentListByContents = commentRepository.findByContentsLike("%"+contents+"%");
 
         return commentListByContents.stream()
                 .filter(comment -> !comment.getIsDeleted())

@@ -2,6 +2,8 @@ package com.example.onederful.domain.comment.controller;
 
 import com.example.onederful.domain.comment.dto.*;
 import com.example.onederful.domain.comment.service.CommentService;
+import com.example.onederful.domain.user.entity.User;
+import com.example.onederful.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,19 +18,15 @@ import java.util.List;
 public class CommentController {
 
     private final CommentService commentService;
+    private final UserRepository userRepository;
 
     // 댓글 생성
     @PostMapping("/comments")
-    //public ResponseEntity<CreateCommentResponseDto> save (@AuthenticationPrincipal AuthUser authUser, @RequestBody CreateCommentRequestDto requestDto){
-    public ResponseEntity<ResponseDto<CreateCommentResponseDataDto>> save(
-            String username, @RequestBody CreateCommentRequestDto requestDto) {
-//        Long userId = authUser.getUserId();
-//        User user = userRepository.findById(userId)
-//                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        username = "홍길동";
+
+    public ResponseEntity<ResponseDto<CreateCommentResponseDataDto>> save (@AuthenticationPrincipal Long userId, @RequestBody CreateCommentRequestDto requestDto){
 
         CreateCommentResponseDataDto createCommentResponseDataDto =
-                commentService.save(username, requestDto.getContents());
+                commentService.save(userId, requestDto.getContents());
         ResponseDto<CreateCommentResponseDataDto> responseDto = ResponseDto.success("댓글이 생성되었습니다.", createCommentResponseDataDto);
 
         return ResponseEntity.ok(responseDto);
@@ -37,11 +35,10 @@ public class CommentController {
     // 댓글 수정
     @PatchMapping("/comments/{comment_id}")
     public ResponseEntity<ResponseDto<UpdateCommentResponseDataDto>> updateComment(
-            @PathVariable Long id, @RequestBody UpdateCommentRequestDto requestDto, @AuthenticationPrincipal AuthUser authUser
+            @PathVariable Long commentId, @RequestBody UpdateCommentRequestDto requestDto, @AuthenticationPrincipal Long userId
     ) {
-        Long userId = authUser.getUserId();
         UpdateCommentResponseDataDto updateCommentResponseDataDto =
-                commentService.updateComment(id, requestDto.getContents(), userId);
+                commentService.updateComment(commentId, requestDto.getContents(), userId);
         return ResponseEntity.ok(ResponseDto.success("댓글이 수정되었습니다.", updateCommentResponseDataDto));
     }
 
@@ -50,7 +47,7 @@ public class CommentController {
     public ResponseEntity<ResponseDto<List<CommentResponseDataDto>>> findAllCommentByTaskId(
             @PathVariable Long taskId) {
         List<CommentResponseDataDto> commentResponseDataDtoList = commentService.findAllCommentByTaskId(taskId);
-        return ResponseEntity.ok(ResponseDto.success("데스크 " + taskId + "에 달린 댓글 목록", commentResponseDataDtoList));
+        return ResponseEntity.ok(ResponseDto.success("task " + taskId + "에 달린 댓글 목록", commentResponseDataDtoList));
     }
 
     // 내용으로 댓글 조회
@@ -59,8 +56,6 @@ public class CommentController {
         List<CommentResponseDataDto> commentResponseDataDtoList = commentService.findCommentByContents(contents);
         return ResponseEntity.ok(ResponseDto.success( contents + "가 포함된 댓글 목록 ", commentResponseDataDtoList));
     }
-
-
 
 
     // 댓글 삭제
