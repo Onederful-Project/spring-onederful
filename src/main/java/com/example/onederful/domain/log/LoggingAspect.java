@@ -1,0 +1,63 @@
+package com.example.onederful.domain.log;
+
+import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.annotation.AfterReturning;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Pointcut;
+import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+import com.example.onederful.domain.log.enums.Method;
+import com.example.onederful.domain.log.service.LogService;
+
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
+
+@Aspect
+@Component
+@RequiredArgsConstructor
+public class LoggingAspect {
+
+	private final LogService logService;
+
+	@Pointcut("execution(* com.example..LogService.addLogTest1()) || execution(* com.example..LogService.addLogTest2())")
+	public void serviceMethods() {}
+
+	// 생성, 수정, 삭제
+	@AfterReturning(pointcut = "serviceMethods()", returning = "result")
+	public void logAfterReturning(JoinPoint joinPoint, Object result) {
+		System.out.println("메서드 정상 실행 후: 로그 기록");
+
+		// HttpServletRequest으로부터 요청 ip, 메서드, url
+		HttpServletRequest request =
+			((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
+
+		// if (request == null) 예외 처리
+
+		String ip = request.getRemoteAddr();
+		String method = request.getMethod();
+		Method enumMethod = Method.valueOf(method);
+		String url = request.getRequestURI();
+
+		// 로그 저장
+		logService.saveLog(ip, enumMethod, url, result);
+	}
+
+	// 상태 변경
+	// @Around("serviceMethods()")
+	// public void logTaskStatusChange() {
+	// 	// 변경 전 task 상태 조회
+	//  taskService.findStatus();
+	//
+	// 	// 메서드 실행
+	//
+	// 	// 변경 후 tast 상태 조회 및 다른 정보들 뽑기
+	//	taskService.findStatus();
+ 	//
+	// 	// 로그 저장
+	//	logService.saveLog();
+	// }
+
+	//로그인/로그아웃
+}
