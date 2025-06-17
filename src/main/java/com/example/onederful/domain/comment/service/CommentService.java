@@ -40,6 +40,10 @@ public class CommentService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
+        if(comment.getIsDeleted()==true){
+            throw new IllegalArgumentException("삭제된 댓글입니다.");
+        }
+
         comment.update(contents);
         return new UpdateCommentResponseDataDto(comment.getId(), user.getName(), comment.getContents(),comment.getCreatedAt(), comment.getUpdatedAt());
     }
