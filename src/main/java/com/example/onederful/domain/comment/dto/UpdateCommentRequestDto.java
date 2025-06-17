@@ -5,9 +5,9 @@ import lombok.Getter;
 @Getter
 public class UpdateCommentRequestDto {
 
-    private final String contents;
+    private final String content;
 
-    public UpdateCommentRequestDto(String contents){
-        this.contents = contents;
+    public UpdateCommentRequestDto(String content){
+        this.content = content;
     }
 }

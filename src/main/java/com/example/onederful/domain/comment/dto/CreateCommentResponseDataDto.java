@@ -7,12 +7,12 @@ public class CreateCommentResponseDataDto {
 
     private final Long id;
     private final String writer;
-    private final String contents;
+    private final String content;
 
-    public CreateCommentResponseDataDto(Long id, String writer, String contents){
+    public CreateCommentResponseDataDto(Long id, String writer, String content){
         this.id = id;
         this.writer = writer;
-        this.contents = contents;
+        this.content = content;
     }
 
 }

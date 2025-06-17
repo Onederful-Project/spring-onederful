@@ -9,5 +9,5 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     List<Comment> findAllByTaskIdOrderByCreatedAtDesc(Long taskId);
 
-    List<Comment> findByContentsLike(String contents);
+    List<Comment> findBycontentLike(String content);
 }

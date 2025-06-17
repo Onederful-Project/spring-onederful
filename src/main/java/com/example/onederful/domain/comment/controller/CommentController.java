@@ -18,46 +18,46 @@ public class CommentController {
     private final CommentService commentService;
 
     // 댓글 생성
-    @PostMapping("/comments")
-    public ResponseEntity<ResponseDto<CreateCommentResponseDataDto>> save (HttpServletRequest httpServletRequest, @RequestBody CreateCommentRequestDto requestDto){
+    @PostMapping("/tasks/{task_id}/comments")
+    public ResponseEntity<ResponseDto<CreateCommentResponseDataDto>> save (@PathVariable Long task_id, HttpServletRequest httpServletRequest, @RequestBody CreateCommentRequestDto requestDto){
 
         CreateCommentResponseDataDto createCommentResponseDataDto =
-                commentService.save(httpServletRequest, requestDto.getContents());
+                commentService.save(task_id,httpServletRequest, requestDto.getContent());
         ResponseDto<CreateCommentResponseDataDto> responseDto = ResponseDto.success("댓글이 생성되었습니다.", createCommentResponseDataDto);
 
         return ResponseEntity.ok(responseDto);
     }
 
     // 댓글 수정
-    @PatchMapping("/comments/{comment_id}")
+    @PatchMapping("/tasks/{task_id}/comments/{comment_id}")
     public ResponseEntity<ResponseDto<UpdateCommentResponseDataDto>> updateComment(
-            @PathVariable Long commentId, @RequestBody UpdateCommentRequestDto requestDto, HttpServletRequest httpServletRequest
+            @PathVariable Long task_id, @PathVariable Long comment_id, @RequestBody UpdateCommentRequestDto requestDto, HttpServletRequest httpServletRequest
     ) {
         UpdateCommentResponseDataDto updateCommentResponseDataDto =
-                commentService.updateComment(commentId, requestDto.getContents(), httpServletRequest);
+                commentService.updateComment(comment_id, requestDto.getContent(), httpServletRequest);
         return ResponseEntity.ok(ResponseDto.success("댓글이 수정되었습니다.", updateCommentResponseDataDto));
     }
 
     // 테스크별 댓글 조회
-    @GetMapping("/comments/task/{task_id}")
+    @GetMapping("/tasks/{task_id}/comments")
     public ResponseEntity<ResponseDto<List<CommentResponseDataDto>>> findAllCommentByTaskId(
-            @PathVariable Long taskId) {
-        List<CommentResponseDataDto> commentResponseDataDtoList = commentService.findAllCommentByTaskId(taskId);
-        return ResponseEntity.ok(ResponseDto.success("task " + taskId + "에 달린 댓글 목록", commentResponseDataDtoList));
+            @PathVariable Long task_id) {
+        List<CommentResponseDataDto> commentResponseDataDtoList = commentService.findAllCommentByTaskId(task_id);
+        return ResponseEntity.ok(ResponseDto.success("task " + task_id + "에 달린 댓글 목록", commentResponseDataDtoList));
     }
 
     // 내용으로 댓글 조회
     @GetMapping("/search")
-    public ResponseEntity<ResponseDto<List<CommentResponseDataDto>>> findCommentByContents(@RequestBody String contents){
-        List<CommentResponseDataDto> commentResponseDataDtoList = commentService.findCommentByContents(contents);
-        return ResponseEntity.ok(ResponseDto.success( contents + "가 포함된 댓글 목록 ", commentResponseDataDtoList));
+    public ResponseEntity<ResponseDto<List<CommentResponseDataDto>>> findCommentByContent(@RequestBody FindCommentByContentRequestDto requestDto){
+        List<CommentResponseDataDto> commentResponseDataDtoList = commentService.findCommentByContent(requestDto.getContent());
+        return ResponseEntity.ok(ResponseDto.success( requestDto.getContent() + "가 포함된 댓글 목록 ", commentResponseDataDtoList));
     }
 
 
     // 댓글 삭제
-    @DeleteMapping("/comments/{comment_id}")
-    public ResponseEntity<ResponseDto<Void>> deleteComment(@PathVariable Long commentId){
-        commentService.deleteComment(commentId);
+    @DeleteMapping("/tasks/{task_id}/comments/{comment_id}")
+    public ResponseEntity<ResponseDto<Void>> deleteComment(@PathVariable Long task_id, @PathVariable Long comment_id){
+        commentService.deleteComment(comment_id);
         return ResponseEntity.ok(ResponseDto.success("댓글이 삭제되었습니다.", null));
     }
 

@@ -38,8 +38,8 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "contents", nullable = false)
-    private String contents;
+    @Column(name = "content", nullable = false)
+    private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name= "task_id", nullable = false)
@@ -64,15 +64,16 @@ public class Comment {
     @Column(name="is_deleted", nullable = false)
     private Boolean isDeleted = false;
 
-    public Comment(String contents, User user){
+    public Comment(String content, User user, Task task){
         this.user = user;
-        this.contents = contents;
+        this.content = content;
+        this.task = task;
         this.createdAt = LocalDateTime.now();
         this.isDeleted = false;
     }
 
-    public void update(String contents){
-        this.contents = contents;
+    public void update(String content){
+        this.content = content;
         this.updatedAt = LocalDateTime.now();
         this.isDeleted = false;
     }

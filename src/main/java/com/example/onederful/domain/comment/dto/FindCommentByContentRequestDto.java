@@ -3,12 +3,12 @@ package com.example.onederful.domain.comment.dto;
 import lombok.Getter;
 
 @Getter
-public class CreateCommentRequestDto {
+public class FindCommentByContentRequestDto {
 
     private final String content;
 
-    public CreateCommentRequestDto(String writer, String content) {
+
+    public FindCommentByContentRequestDto(String content) {
         this.content = content;
     }
-
 }

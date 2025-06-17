@@ -9,14 +9,14 @@ import java.time.LocalDateTime;
 @Getter
 public class CommentResponseDataDto {
     private final String writer;
-    private final String contents;
+    private final String content;
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
 
 
-    public CommentResponseDataDto(String writer, String contents, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public CommentResponseDataDto(String writer, String content, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.writer = writer;
-        this.contents = contents;
+        this.content = content;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
@@ -24,7 +24,7 @@ public class CommentResponseDataDto {
     public static CommentResponseDataDto from(Comment comment){
         return new CommentResponseDataDto(
                 comment.getUser().getName(),
-                comment.getContents(),
+                comment.getContent(),
                 comment.getCreatedAt(),
                 comment.getUpdatedAt()
         );

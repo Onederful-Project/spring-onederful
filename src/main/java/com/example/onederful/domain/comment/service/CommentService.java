@@ -25,26 +25,30 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
+    private final TaskRepository taskRepository;
     private final JwtUtil jwtUtil;
 
-    public CreateCommentResponseDataDto save(HttpServletRequest httpServletRequest, String contents) {
+    public CreateCommentResponseDataDto save(Long task_id, HttpServletRequest httpServletRequest, String content) {
 
         // 토큰에서 Id 가져오기
-        Long userId = jwtUtil.extractId(httpServletRequest);
+        Long user_id = jwtUtil.extractId(httpServletRequest);
 
-        User user = userRepository.findById(userId)
+        User user = userRepository.findById(user_id)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
-        Comment comment = new Comment(contents, user);
+        Task task = taskRepository.findById(task_id)
+                .orElseThrow(() -> new IllegalArgumentException("테스크를 찾을 수 없습니다."));
+
+        Comment comment = new Comment(content, user, task);
         Comment savedComment = commentRepository.save(comment);
 
-        return new CreateCommentResponseDataDto(savedComment.getId(), user.getName(), savedComment.getContents());
+        return new CreateCommentResponseDataDto(savedComment.getId(), user.getName(), savedComment.getContent());
 
     }
 
     @Transactional
-    public UpdateCommentResponseDataDto updateComment(Long commentId, String contents, HttpServletRequest httpServletRequest) {
-        Comment comment = commentRepository.findById(commentId)
+    public UpdateCommentResponseDataDto updateComment(Long comment_id, String content, HttpServletRequest httpServletRequest) {
+        Comment comment = commentRepository.findById(comment_id)
                 .orElseThrow(() ->new IllegalArgumentException("댓글을 찾을 수 없습니다."));
 
         // 토큰에서 Id 가져오기
@@ -57,8 +61,8 @@ public class CommentService {
             throw new IllegalArgumentException("삭제된 댓글입니다.");
         }
 
-        comment.update(contents);
-        return new UpdateCommentResponseDataDto(comment.getId(), user.getName(), comment.getContents(),comment.getCreatedAt(), comment.getUpdatedAt());
+        comment.update(content);
+        return new UpdateCommentResponseDataDto(comment.getId(), user.getName(), comment.getContent(),comment.getCreatedAt(), comment.getUpdatedAt());
     }
 
     public List<CommentResponseDataDto> findAllCommentByTaskId(Long taskId){
@@ -71,11 +75,11 @@ public class CommentService {
     }
 
 
-    public List<CommentResponseDataDto> findCommentByContents(String contents){
+    public List<CommentResponseDataDto> findCommentByContent(String content){
 
-        List<Comment> commentListByContents = commentRepository.findByContentsLike("%"+contents+"%");
+        List<Comment> commentListByContent = commentRepository.findBycontentLike("%"+content+"%");
 
-        return commentListByContents.stream()
+        return commentListByContent.stream()
                 .filter(comment -> !comment.getIsDeleted())
                 .map(CommentResponseDataDto::from)
                 .collect(Collectors.toList());
