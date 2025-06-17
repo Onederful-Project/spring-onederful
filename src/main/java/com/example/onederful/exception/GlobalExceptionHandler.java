@@ -1,11 +1,9 @@
 package com.example.onederful.exception;
 
-import com.example.onederful.domain.user.dto.ApiResponseDto;
+import com.example.onederful.domain.comment.ApiResponseDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-
-import java.time.OffsetDateTime;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {

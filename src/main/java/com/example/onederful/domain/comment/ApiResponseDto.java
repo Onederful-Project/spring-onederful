@@ -1,4 +1,4 @@
-package com.example.onederful.domain.user.dto;
+package com.example.onederful.domain.comment;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
