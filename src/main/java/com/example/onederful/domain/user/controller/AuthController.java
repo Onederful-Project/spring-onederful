@@ -1,6 +1,7 @@
 package com.example.onederful.domain.user.controller;
 
 import com.example.onederful.domain.user.common.LoginGroup;
+import com.example.onederful.domain.user.common.PasswordGroup;
 import com.example.onederful.domain.user.common.SignupGroup;
 import com.example.onederful.domain.user.dto.*;
 import com.example.onederful.domain.user.service.UserService;
@@ -22,27 +23,45 @@ public class AuthController {
     @PostMapping("/auth/register")
     public ResponseEntity<ApiResponseDto> register(@Validated(SignupGroup.class) @RequestBody RequestDto requestDto){
 
-        ApiResponseDto signup = userService.signup(requestDto);
+        UserResponseDto signup = userService.signup(requestDto);
 
-        return ResponseEntity.status(HttpStatus.OK).body(signup);
+        ApiResponseDto success = ApiResponseDto.success("회원가입이 성공하였습니다.", signup);
+
+        return ResponseEntity.status(HttpStatus.OK).body(success);
     }
 
     // 로그인
     @PostMapping("/auth/login")
     public ResponseEntity<ApiResponseDto> login(@Validated(LoginGroup.class) @RequestBody RequestDto requestDto){
 
-        ApiResponseDto login = userService.login(requestDto);
+        Tokeninfo token = userService.login(requestDto);
 
-        return ResponseEntity.status(HttpStatus.OK).body(login);
+        ApiResponseDto success = ApiResponseDto.success("로그인이 완료되었습니다.", token);
+
+        return ResponseEntity.status(HttpStatus.OK).body(success);
     }
 
     // 현재 사용자 정보 조회
     @GetMapping("/users/me")
     public ResponseEntity<ApiResponseDto> select (HttpServletRequest request){
 
-        ApiResponseDto select = userService.select(request);
+        UserResponseDto select = userService.select(request);
 
-        return ResponseEntity.status(HttpStatus.OK).body(select);
+        ApiResponseDto success = ApiResponseDto.success("사용자가 정보를 조회했습니다.", select);
+
+        return ResponseEntity.status(HttpStatus.OK).body(success);
+    }
+
+    // 회원 탈퇴 (계정 삭제)
+    @PostMapping("/auth/withdraw")
+    public ResponseEntity<ApiResponseDto> withdraw (HttpServletRequest request,
+                                                    @Validated(PasswordGroup.class) @RequestBody RequestDto dto){
+
+        userService.withdraw(request,dto);
+
+        ApiResponseDto success = ApiResponseDto.success("회원탈퇴가 완료되었습니다.", null);
+
+        return ResponseEntity.status(HttpStatus.OK).body(success);
     }
 
 
