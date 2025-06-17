@@ -68,11 +68,13 @@ public class Comment {
         this.user = user;
         this.contents = contents;
         this.createdAt = LocalDateTime.now();
+        this.isDeleted = false;
     }
 
     public void update(String contents){
         this.contents = contents;
         this.updatedAt = LocalDateTime.now();
+        this.isDeleted = false;
     }
 
     public void delete(){

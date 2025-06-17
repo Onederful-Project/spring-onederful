@@ -2,12 +2,10 @@ package com.example.onederful.domain.comment.controller;
 
 import com.example.onederful.domain.comment.dto.*;
 import com.example.onederful.domain.comment.service.CommentService;
-import com.example.onederful.domain.user.entity.User;
-import com.example.onederful.domain.user.repository.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,15 +16,13 @@ import java.util.List;
 public class CommentController {
 
     private final CommentService commentService;
-    private final UserRepository userRepository;
 
     // 댓글 생성
     @PostMapping("/comments")
-
-    public ResponseEntity<ResponseDto<CreateCommentResponseDataDto>> save (@AuthenticationPrincipal Long userId, @RequestBody CreateCommentRequestDto requestDto){
+    public ResponseEntity<ResponseDto<CreateCommentResponseDataDto>> save (HttpServletRequest httpServletRequest, @RequestBody CreateCommentRequestDto requestDto){
 
         CreateCommentResponseDataDto createCommentResponseDataDto =
-                commentService.save(userId, requestDto.getContents());
+                commentService.save(httpServletRequest, requestDto.getContents());
         ResponseDto<CreateCommentResponseDataDto> responseDto = ResponseDto.success("댓글이 생성되었습니다.", createCommentResponseDataDto);
 
         return ResponseEntity.ok(responseDto);
@@ -35,10 +31,10 @@ public class CommentController {
     // 댓글 수정
     @PatchMapping("/comments/{comment_id}")
     public ResponseEntity<ResponseDto<UpdateCommentResponseDataDto>> updateComment(
-            @PathVariable Long commentId, @RequestBody UpdateCommentRequestDto requestDto, @AuthenticationPrincipal Long userId
+            @PathVariable Long commentId, @RequestBody UpdateCommentRequestDto requestDto, HttpServletRequest httpServletRequest
     ) {
         UpdateCommentResponseDataDto updateCommentResponseDataDto =
-                commentService.updateComment(commentId, requestDto.getContents(), userId);
+                commentService.updateComment(commentId, requestDto.getContents(), httpServletRequest);
         return ResponseEntity.ok(ResponseDto.success("댓글이 수정되었습니다.", updateCommentResponseDataDto));
     }
 

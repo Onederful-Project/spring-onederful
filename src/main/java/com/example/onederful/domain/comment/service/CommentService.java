@@ -6,8 +6,12 @@ import com.example.onederful.domain.comment.dto.ResponseDto;
 import com.example.onederful.domain.comment.dto.UpdateCommentResponseDataDto;
 import com.example.onederful.domain.comment.entity.Comment;
 import com.example.onederful.domain.comment.repository.CommentRepository;
+import com.example.onederful.domain.task.entity.Task;
+import com.example.onederful.domain.task.repository.TaskRepository;
 import com.example.onederful.domain.user.entity.User;
 import com.example.onederful.domain.user.repository.UserRepository;
+import com.example.onederful.security.JwtUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,8 +25,12 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
+    private final JwtUtil jwtUtil;
 
-    public CreateCommentResponseDataDto save(Long userId, String contents) {
+    public CreateCommentResponseDataDto save(HttpServletRequest httpServletRequest, String contents) {
+
+        // 토큰에서 Id 가져오기
+        Long userId = jwtUtil.extractId(httpServletRequest);
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
@@ -35,9 +43,12 @@ public class CommentService {
     }
 
     @Transactional
-    public UpdateCommentResponseDataDto updateComment(Long commentId, String contents, Long userId) {
+    public UpdateCommentResponseDataDto updateComment(Long commentId, String contents, HttpServletRequest httpServletRequest) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() ->new IllegalArgumentException("댓글을 찾을 수 없습니다."));
+
+        // 토큰에서 Id 가져오기
+        Long userId = jwtUtil.extractId(httpServletRequest);
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
