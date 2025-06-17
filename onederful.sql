@@ -18,7 +18,7 @@ CREATE TABLE tasks
     title       VARCHAR(100) NOT NULL COMMENT '제목',
     description TEXT         NOT NULL COMMENT '설명',
     priority    VARCHAR(100) NOT NULL COMMENT '우선순위 식별자 (ENUM)',
-    manager_id  BIGINT       NOT NULL COMMENT '담당자 식별자 (FK)',
+    assignee_id BIGINT       NOT NULL COMMENT '담당자 식별자 (FK)',
     user_id     BIGINT       NOT NULL COMMENT '작성자 식별자 (FK)',
     status      VARCHAR(100) NOT NULL COMMENT '태스크 상태 (ENUM)',
     due_date    DATETIME COMMENT '마감일자',
@@ -28,7 +28,7 @@ CREATE TABLE tasks
     deleted_at  DATETIME COMMENT '삭제날짜',
     is_deleted  BOOLEAN      NOT NULL DEFAULT FALSE COMMENT '삭제여부',
 
-    FOREIGN KEY (manager_id) REFERENCES users (id) ON DELETE CASCADE,
+    FOREIGN KEY (assignee_id) REFERENCES users (id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
