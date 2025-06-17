@@ -33,6 +33,9 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "username", nullable = false)
+    private String username;
+
     @Column(name = "email", nullable = false)
     private String email;
 
@@ -60,4 +63,8 @@ public class User {
     @Builder.Default
     @Column(name="is_deleted", nullable = false)
     private Boolean isDeleted = false;
+
+    public void setEncodedPassword(String Password){
+        this.password = Password;
+    }
 }
