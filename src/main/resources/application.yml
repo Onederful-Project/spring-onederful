@@ -6,3 +6,9 @@ spring:
     url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
+
+jwt:
+  secret:
+    key: ${SECRET_KEY}
+
+  expiration : 3600000
