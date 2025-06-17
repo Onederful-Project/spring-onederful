@@ -73,23 +73,11 @@ public class JwtUtil {
      * @param token JWT 토큰
      * @return 토큰의 유효성 여부 (true : 유효, false : 유효하지 않음)
      */
-    public boolean validateToken(String token){
-        try {
+    public void validateToken(String token){
             Jwts.parserBuilder()
                     .setSigningKey(key)
                     .build()
                     .parseClaimsJws(token);
-            return true;
-        }catch (SecurityException | MalformedJwtException e){
-            log.error("Invalid JWT signature, 유효하지 않은 JWT 서명입니다.");
-        }catch (ExpiredJwtException e){
-            log.error("Expired JWT token, 만료된 JWT token 입니다.", e);
-        }catch (UnsupportedJwtException e){
-            log.error("Unsupported JWT token, 지원되지 않는 JWT 토큰 입니다.", e);
-        }catch (IllegalArgumentException e){
-            log.error("JWT claims is empty, 잘못된 JWT 토큰 입니다.", e);
-        }
-        return false;
     }
 
     /**
