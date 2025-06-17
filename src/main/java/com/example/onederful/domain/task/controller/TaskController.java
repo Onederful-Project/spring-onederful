@@ -1,10 +1,12 @@
 package com.example.onederful.domain.task.controller;
 
 import com.example.onederful.domain.task.dto.request.TaskSaveRequest;
+import com.example.onederful.domain.task.dto.request.TaskUpdateRequest;
 import com.example.onederful.domain.task.dto.response.CommonResponse;
 import com.example.onederful.domain.task.dto.response.TaskResponse;
 import com.example.onederful.domain.task.enums.ProcessStatus;
 import com.example.onederful.domain.task.service.TaskService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -35,12 +37,13 @@ public class TaskController {
     private final TaskService taskService;
 
     @PostMapping
-    public ResponseEntity<CommonResponse<Void>> createTask(
-        @RequestBody @Valid TaskSaveRequest request) {
+    public ResponseEntity<CommonResponse<TaskResponse>> createTask(
+        @RequestBody @Valid TaskSaveRequest request, HttpServletRequest httpServletRequest) {
 
-        taskService.createTask(request);
+        TaskResponse response = taskService.createTask(request, httpServletRequest);
+
         return ResponseEntity.ok(
-            CommonResponse.create(true, "업무 생성 성공", null,
+            CommonResponse.create(true, "업무 생성 성공", response,
                 OffsetDateTime.now()));
     }
 
@@ -82,12 +85,12 @@ public class TaskController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CommonResponse<Void>> updateTask(@PathVariable @NotNull Long id,
-        @RequestBody @Valid TaskSaveRequest request) {
+    public ResponseEntity<CommonResponse<TaskResponse>> updateTask(@PathVariable @NotNull Long id,
+        @RequestBody @Valid TaskUpdateRequest request) {
 
-        taskService.updateTask(id, request);
+        TaskResponse response = taskService.updateTask(id, request);
 
         return ResponseEntity.ok(
-            CommonResponse.create(true, "업무 수정 성공", null, OffsetDateTime.now()));
+            CommonResponse.create(true, "업무 수정 성공", response, OffsetDateTime.now()));
     }
 }

@@ -1,6 +1,7 @@
 package com.example.onederful.domain.task.service;
 
 import com.example.onederful.domain.task.dto.request.TaskSaveRequest;
+import com.example.onederful.domain.task.dto.request.TaskUpdateRequest;
 import com.example.onederful.domain.task.dto.response.TaskResponse;
 import com.example.onederful.domain.task.entity.Task;
 import com.example.onederful.domain.task.enums.ProcessStatus;
@@ -8,6 +9,7 @@ import com.example.onederful.domain.task.repository.TaskRepository;
 import com.example.onederful.domain.user.entity.User;
 import com.example.onederful.domain.user.repository.UserRepository;
 import com.example.onederful.security.JwtUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,23 +27,27 @@ public class TaskService {
     private final JwtUtil jwtUtil;
 
     @Transactional
-    public void createTask(TaskSaveRequest request) {
+    public TaskResponse createTask(TaskSaveRequest request, HttpServletRequest httpServletRequest) {
 
-        User manager = userRepository.findById(request.getManagerId()).orElseThrow();
+        Long userId = jwtUtil.extractId(httpServletRequest);
+
+        User me = userRepository.findById(userId).orElseThrow();
+        User manager = userRepository.findById(request.getAssigneeId()).orElseThrow();
 
         // user (생성한 사람은 추후 로그인 연동 후 수정 예정)
         Task task = Task.builder()
             .title(request.getTitle())
             .description(request.getDescription())
             .priority(request.getPriority())
-            .status(request.getStatus())
-            .manager(manager)
-            .user(manager)
+            .assignee(manager)
+            .user(me)
             .status(ProcessStatus.TODO)
             .dueDate(request.getDueDate().toLocalDateTime())
             .build();
 
         taskRepository.save(task);
+
+        return TaskResponse.of(task);
     }
 
     @Transactional(readOnly = true)
@@ -69,10 +75,10 @@ public class TaskService {
     }
 
     @Transactional
-    public void updateTask(Long id, TaskSaveRequest request) {
+    public TaskResponse updateTask(Long id, TaskUpdateRequest request) {
 
         Task task = taskRepository.findById(id).orElseThrow();
-        User manager = userRepository.findById(request.getManagerId()).orElseThrow();
+        User assignee = userRepository.findById(request.getAssigneeId()).orElseThrow();
 
         if (task.getStatus() == ProcessStatus.DONE) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
@@ -94,7 +100,9 @@ public class TaskService {
         }
 
         task.updateTask(request.getTitle(), request.getDescription(), request.getPriority(),
-            manager,
+            assignee,
             request.getDueDate().toLocalDateTime(), request.getStatus());
+        
+        return TaskResponse.of(task);
     }
 }
