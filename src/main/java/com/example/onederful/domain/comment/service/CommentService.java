@@ -52,6 +52,7 @@ public class CommentService {
         List<Comment> commentListById = commentRepository.findAllByTaskIdOrderByCreatedAtDesc(taskId);
 
         return commentListById.stream()
+                .filter(comment -> !comment.getIsDeleted())
                 .map(CommentResponseDataDto::from)
                 .collect(Collectors.toList());
     }

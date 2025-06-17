@@ -55,7 +55,7 @@ public class CommentController {
 
     // 내용으로 댓글 조회
     @GetMapping("/search")
-    public ResponseEntity<ResponseDto<CommentResponseDataDto>> findCommentByContents(@RequestBody String contents){
+    public ResponseEntity<ResponseDto<List<CommentResponseDataDto>>> findCommentByContents(@RequestBody String contents){
         List<CommentResponseDataDto> commentResponseDataDtoList = commentService.findCommentByContents(contents);
         return ResponseEntity.ok(ResponseDto.success( contents + "가 포함된 댓글 목록 ", commentResponseDataDtoList));
     }
