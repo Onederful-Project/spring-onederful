@@ -6,7 +6,6 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
 import com.example.onederful.domain.task.dto.request.TaskSaveRequest;
-import com.example.onederful.domain.task.dto.request.TaskUpdateRequest;
 import com.example.onederful.domain.task.entity.Task;
 import com.example.onederful.domain.task.enums.Priority;
 import com.example.onederful.domain.task.enums.ProcessStatus;
@@ -53,8 +52,14 @@ public class TaskServiceTest {
     @DisplayName("업무 생성이 성공한다.")
     void 업무_생성_성공_테스트() {
         //given
-        TaskSaveRequest request = new TaskSaveRequest("title", "description", Priority.LOW,
-            1L, OffsetDateTime.parse("2027-04-02T23:59:59Z"));
+        TaskSaveRequest request = TaskSaveRequest.builder()
+            .title("title")
+            .description("description")
+            .priority(Priority.LOW)
+            .assigneeId(1L)
+            .dueDate(OffsetDateTime.parse("2027-04-02T23:59:59Z"))
+            .build();
+
         HttpServletRequest httpServletRequest = new MockHttpServletRequest();
 
         Long userId = 1L;
@@ -286,8 +291,14 @@ public class TaskServiceTest {
 
         Long id = 1L;
 
-        TaskUpdateRequest request = new TaskUpdateRequest("title", "description", Priority.MEDIUM,
-            2L, ProcessStatus.IN_PROGRESS, OffsetDateTime.parse("2027-04-02T23:59:59Z"));
+        TaskSaveRequest request = TaskSaveRequest.builder()
+            .title("title")
+            .description("description")
+            .priority(Priority.LOW)
+            .assigneeId(1L)
+            .status(ProcessStatus.IN_PROGRESS)
+            .dueDate(OffsetDateTime.parse("2027-04-02T23:59:59Z"))
+            .build();
 
         Long userId = 1L;
 
