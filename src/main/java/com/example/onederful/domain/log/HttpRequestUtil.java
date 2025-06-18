@@ -18,7 +18,7 @@ public class HttpRequestUtil {
 
 	private final JwtUtil jwtUtil;
 
-	// HttpServletRequest으로부터 요청 ip, 메서드, url, userId
+	// HttpServletRequest으로부터 요청 ip, 메서드, url, 로그인한 userId
 	public RequestInfo getRequestInfo() {
 		ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
 		if (attrs == null) {

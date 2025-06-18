@@ -1,11 +1,20 @@
 package com.example.onederful.domain.log;
 
+import java.util.Objects;
+
+import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
+import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
 
+import com.example.onederful.domain.log.enums.Activity;
 import com.example.onederful.domain.log.service.LogService;
+import com.example.onederful.domain.task.entity.Task;
+import com.example.onederful.domain.task.enums.ProcessStatus;
+import com.example.onederful.domain.task.service.TaskService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -15,7 +24,11 @@ import lombok.RequiredArgsConstructor;
 public class LoggingAspect {
 
 	private final HttpRequestUtil httpRequestUtil;
+	private final TaskService taskService;
 	private final LogService logService;
+
+	@Pointcut("execution(* com.example..UserService.login(..))")
+	public void loginMethod() {}
 
 	@Pointcut(
 		"execution(* com.example..TaskService.createTask(..)) || " +
@@ -24,8 +37,19 @@ public class LoggingAspect {
 	)
 	public void cudMethods() {}
 
-	@Pointcut("execution(* com.example..UserService.login(..))")
-	public void loginMethod() {}
+	@Pointcut("execution(* com.example..TaskService.updateTask(..))")
+	public void updateTaskMethod() {}
+
+	// 로그인
+	@AfterReturning(pointcut = "loginMethod()", returning = "result")
+	public void logLoginMethod(Object result) {
+
+		// HttpServletRequest으로부터 요청 ip, 메서드, url
+		HttpRequestUtil.RequestInfo request = httpRequestUtil.getRequestInfo();
+
+		// 로그 저장
+		logService.saveLoginLog(request.getIp(), request.getMethod(), request.getUrl(), result);
+	}
 
 	// 생성, 수정, 삭제
 	@AfterReturning(pointcut = "cudMethods()", returning = "result")
@@ -39,29 +63,41 @@ public class LoggingAspect {
 	}
 
 	// 상태 변경
-	// @Around("serviceMethods()")
-	// public void logTaskStatusChange() {
-	// 	// 변경 전 task 상태 조회
-	//  taskService.findStatus();
-	//
-	// 	// 메서드 실행
-	//
-	// 	// 변경 후 tast 상태 조회 및 다른 정보들 뽑기
-	//	taskService.findStatus();
- 	//
-	// 	// 로그 저장
-	//	logService.saveLog();
-	// }
+	@Around("updateTaskMethod()")
+	public Object logTaskStatusChange(ProceedingJoinPoint joinPoint) throws Throwable {
+		Object[] args = joinPoint.getArgs();
+		Long taskId = (Long) args[0]; // 첫 번째 인자가 taskId
 
-	// 로그인/로그아웃
-	@AfterReturning(pointcut = "loginMethod()", returning = "result")
-	public void logLoginMethod(Object result) {
-		System.out.println("메서드 정상 실행 후: 로그 기록");
+		// 기존 task 상태 조회
+		Task beforeTask = taskService.findById(taskId); // 서비스 계층 사용
+		ProcessStatus beforeStatus = beforeTask != null ? beforeTask.getStatus() : null;
 
-		// HttpServletRequest으로부터 요청 ip, 메서드, url
-		HttpRequestUtil.RequestInfo request = httpRequestUtil.getRequestInfo();
+		// 메서드 실행
+		Object result = joinPoint.proceed();
 
-		// 로그 저장
-		logService.saveLoginLog(request.getIp(), request.getMethod(), request.getUrl(), result);
+		// 변경 후 task 상태 조회
+		Task afterTask = taskService.findById(taskId);
+		ProcessStatus afterStatus = afterTask != null ? afterTask.getStatus() : null;
+
+		// 변경되었는지 비교 후 로그 기록
+		Activity activity = null;
+		if (Objects.equals(beforeStatus, ProcessStatus.TODO) && Objects.equals(afterStatus, ProcessStatus.IN_PROGRESS))
+		{
+			activity = Activity.TASK_STATUS_TODO_TO_IN_PROGRESS;
+		}
+		else if (Objects.equals(beforeStatus, ProcessStatus.IN_PROGRESS) && Objects.equals(afterStatus, ProcessStatus.DONE))
+		{
+			activity = Activity.TASK_STATUS_IN_PROGRESS_TO_DONE;
+		}
+
+		if(activity != null) {
+			// HttpServletRequest으로부터 요청 ip, 메서드, url, 로그인한 userid
+			HttpRequestUtil.RequestInfo request = httpRequestUtil.getRequestInfo();
+
+			// 로그 저장
+			logService.saveTaskStatusChangeLog(request.getIp(), request.getMethod(), request.getUrl(), request.getUserId(), taskId, activity);
+		}
+
+		return result;
 	}
 }

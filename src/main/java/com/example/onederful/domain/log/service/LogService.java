@@ -14,7 +14,6 @@ import com.example.onederful.domain.log.enums.Method;
 import com.example.onederful.domain.log.repository.LogRepository;
 import com.example.onederful.domain.log.repository.LogSpecification;
 import com.example.onederful.domain.task.dto.response.TaskResponse;
-import com.example.onederful.domain.user.dto.ApiResponseDto;
 import com.example.onederful.domain.user.dto.Tokeninfo;
 import com.example.onederful.domain.user.entity.User;
 import com.example.onederful.domain.user.repository.UserRepository;
@@ -68,8 +67,6 @@ public class LogService {
 			activity = Activity.TASK_DELETED;
 		}
 
-		// if (activity == null) 예외 처리
-
 		// 대상 id -> 생성인 경우 응답에서 / 수정과 삭제의 경우 url 마지막에서 찾기
 		Long targetId = null;
 		if (activity.equals(Activity.TASK_CREATED)) {
@@ -82,8 +79,6 @@ public class LogService {
 			String lastPart = parts[parts.length - 1];  // /api/.../{id}의 id
 			targetId =  Long.parseLong(lastPart);
 		}
-
-		// if (targetId == null) 예외 처리
 
 		// 로그 DB에 저장
 		Log log = Log.builder()
@@ -102,12 +97,9 @@ public class LogService {
 	public void saveLoginLog(String ip, Method method, String url, Object result) {
 		// userId
 		Long userId = null;
-		if (result instanceof ApiResponseDto) {
-			Object data = ((ApiResponseDto) result).getData();
-			if (data instanceof Tokeninfo) {
-				String token = ((Tokeninfo) data).getToken();
-				userId = jwtUtil.extractAllClaims(token).get("id", Long.class);
-			}
+		if (result instanceof Tokeninfo) {
+			String token = ((Tokeninfo) result).getToken();
+			userId = jwtUtil.extractAllClaims(token).get("id", Long.class);
 		}
 
 		// 현재 유저 조회
@@ -118,12 +110,27 @@ public class LogService {
 		// 활동 유형
 		Activity activity = Activity.USER_LOGGED_IN;
 
-		// if (activity == null) 예외 처리
-
 		// 대상 id
 		Long targetId = userId;
 
-		// if (targetId == null) 예외 처리
+		// 로그 DB에 저장
+		Log log = Log.builder()
+			.user(user)
+			.activity(activity)
+			.ipAddress(ip)
+			.method(method)
+			.targetId(targetId)
+			.requestUrl(url)
+			.build();
+
+		logRepository.save(log);
+	}
+
+	public void saveTaskStatusChangeLog(String ip, Method method, String url, Long userId, Long targetId, Activity activity) {
+		// 현재 유저 조회
+		User user  = userRepositry.findById(userId).orElseThrow(
+			() -> new CustomException(ErrorCode.UNAUTHORIZED)
+		);
 
 		// 로그 DB에 저장
 		Log log = Log.builder()
