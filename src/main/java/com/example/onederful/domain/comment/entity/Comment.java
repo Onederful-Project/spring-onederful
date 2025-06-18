@@ -19,6 +19,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Comments;
+import org.springframework.cglib.core.Local;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -61,5 +63,24 @@ public class Comment {
     @Builder.Default
     @Column(name="is_deleted", nullable = false)
     private Boolean isDeleted = false;
+
+    public Comment(String content, User user, Task task){
+        this.user = user;
+        this.content = content;
+        this.task = task;
+        this.createdAt = LocalDateTime.now();
+        this.isDeleted = false;
+    }
+
+    public void update(String content){
+        this.content = content;
+        this.updatedAt = LocalDateTime.now();
+        this.isDeleted = false;
+    }
+
+    public void delete(){
+        this.isDeleted = true;
+        this.deletedAt= LocalDateTime.now();
+    }
 
 }
