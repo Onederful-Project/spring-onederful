@@ -51,10 +51,10 @@ public class CommentController {
     @GetMapping("/tasks/{task_id}/comments/pages")
     public ResponseEntity<ResponseDto<Page<CommentResponseDataDto>>> findAllCommentByTaskIdInPage(
             @PathVariable Long task_id,
-            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
         Page<CommentResponseDataDto> commentResponseDtoInPage = commentService.findAllCommentByTaskIdInPage(task_id,pageable);
         return ResponseEntity.ok(ResponseDto.success("task " + task_id + "에 달린 댓글 목록", commentResponseDtoInPage));
