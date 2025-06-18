@@ -1,7 +1,9 @@
 package com.example.onederful.domain.task.service;
 
 import com.example.onederful.domain.task.dto.request.TaskSaveRequest;
+import com.example.onederful.domain.task.dto.request.TaskStatusUpdateRequest;
 import com.example.onederful.domain.task.dto.response.TaskResponse;
+import com.example.onederful.domain.task.dto.response.TasksResponse;
 import com.example.onederful.domain.task.entity.Task;
 import com.example.onederful.domain.task.enums.ProcessStatus;
 import com.example.onederful.domain.task.repository.TaskRepository;
@@ -11,6 +13,7 @@ import com.example.onederful.exception.CustomException;
 import com.example.onederful.exception.ErrorCode;
 import com.example.onederful.security.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -60,11 +63,17 @@ public class TaskService {
     }
 
     @Transactional(readOnly = true)
-    public Page<TaskResponse> findTasks(Pageable pageable, String search, ProcessStatus status) {
+    public TasksResponse findTasks(Pageable pageable, String search, ProcessStatus status) {
 
         Page<Task> tasks = taskRepository.findTasks(search, status, pageable);
 
-        return tasks.map(TaskResponse::of);
+        return TasksResponse.builder()
+            .content(tasks.getContent().stream().map(TaskResponse::of).collect(Collectors.toList()))
+            .totalElements(tasks.getTotalElements())
+            .size((long) tasks.getSize())
+            .number((long) tasks.getNumber())
+            .totalPages((long) tasks.getTotalPages())
+            .build();
     }
 
     @Transactional
@@ -77,6 +86,18 @@ public class TaskService {
     }
 
     @Transactional
+    public TaskResponse updateTaskStatus(Long id, TaskStatusUpdateRequest request) {
+        Task task = taskRepository.findById(id)
+            .orElseThrow(() -> new CustomException(ErrorCode.NONEXISTENT_TASK));
+
+        taskUpdateValid(task, request.getStatus());
+
+        task.updateTaskStatus(request.getStatus());
+
+        return TaskResponse.of(task);
+    }
+
+    @Transactional
     public TaskResponse updateTask(Long id, TaskSaveRequest request) {
 
         Task task = taskRepository.findById(id)
@@ -84,24 +105,7 @@ public class TaskService {
         User assignee = userRepository.findById(request.getAssigneeId())
             .orElseThrow(() -> new CustomException(ErrorCode.NONEXISTENT_USER));
 
-        if (task.getStatus() == ProcessStatus.DONE) {
-            if (request.getStatus() != ProcessStatus.DONE) {
-                throw new CustomException(ErrorCode.BAD_REQUEST_STATUS);
-            }
-        }
-
-        if (task.getStatus() == ProcessStatus.TODO) {
-            if (request.getStatus() != ProcessStatus.IN_PROGRESS) {
-                throw new CustomException(ErrorCode.BAD_REQUEST_STATUS);
-            }
-            task.taskStart();
-        }
-
-        if (task.getStatus() == ProcessStatus.IN_PROGRESS) {
-            if (request.getStatus() != ProcessStatus.DONE) {
-                throw new CustomException(ErrorCode.BAD_REQUEST_STATUS);
-            }
-        }
+        taskUpdateValid(task, request.getStatus());
 
         task.updateTask(request.getTitle(), request.getDescription(), request.getPriority(),
             assignee,
@@ -114,5 +118,26 @@ public class TaskService {
     public Task findById(Long id) {
         return taskRepository.findById(id)
             .orElseThrow(() -> new CustomException(ErrorCode.NONEXISTENT_TASK));
+    }
+
+    private void taskUpdateValid(Task task, ProcessStatus status) {
+        if (task.getStatus() == ProcessStatus.DONE) {
+            if (status != ProcessStatus.DONE) {
+                throw new CustomException(ErrorCode.BAD_REQUEST_STATUS);
+            }
+        }
+
+        if (task.getStatus() == ProcessStatus.TODO) {
+            if (status != ProcessStatus.IN_PROGRESS) {
+                throw new CustomException(ErrorCode.BAD_REQUEST_STATUS);
+            }
+            task.taskStart();
+        }
+
+        if (task.getStatus() == ProcessStatus.IN_PROGRESS) {
+            if (status != ProcessStatus.DONE) {
+                throw new CustomException(ErrorCode.BAD_REQUEST_STATUS);
+            }
+        }
     }
 }
