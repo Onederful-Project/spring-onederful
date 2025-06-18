@@ -15,6 +15,8 @@ import com.example.onederful.exception.ErrorCode;
 import com.example.onederful.security.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -80,6 +82,13 @@ public class CommentService {
                 .filter(comment -> !comment.getIsDeleted())
                 .map(CommentResponseDataDto::from)
                 .collect(Collectors.toList());
+    }
+
+    public Page<CommentResponseDataDto> findAllCommentByTaskIdInPage(Long task_id, Pageable pageable){
+        // 페이징 대상 조회
+        final Page<Comment> commentListByIdInPage = commentRepository.findByTaskIdAndIsDeletedFalse(task_id, pageable);
+
+        return commentListByIdInPage.map(CommentResponseDataDto::from);
     }
 
 
