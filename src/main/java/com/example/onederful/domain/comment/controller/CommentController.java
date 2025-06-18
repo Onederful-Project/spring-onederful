@@ -35,7 +35,7 @@ public class CommentController {
     }
 
     // 댓글 수정
-    @PatchMapping("/tasks/{task_id}/comments/{comment_id}")
+    @PutMapping("/tasks/{task_id}/comments/{comment_id}")
     public ResponseEntity<ApiResponseDto> updateComment(
             @PathVariable Long task_id, @PathVariable Long comment_id, @RequestBody CommentRequestDto requestDto, HttpServletRequest httpServletRequest
     ) {
