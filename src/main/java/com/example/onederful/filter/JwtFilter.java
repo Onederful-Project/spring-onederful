@@ -4,10 +4,9 @@ import com.example.onederful.security.JwtUtil;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import java.io.IOException;
 import java.time.OffsetDateTime;
 
 @Slf4j
@@ -18,9 +17,9 @@ public class JwtFilter implements Filter {
 
     @Override
     public void doFilter(
-            ServletRequest servletRequest,
-            ServletResponse servletResponse,
-            FilterChain filterChain) throws IOException, ServletException {
+        ServletRequest servletRequest,
+        ServletResponse servletResponse,
+        FilterChain filterChain) throws IOException, ServletException {
 
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
@@ -29,9 +28,13 @@ public class JwtFilter implements Filter {
 
         String authorizationHeader = request.getHeader("Authorization");
 
-
         // 회원가입, 로그인 경우
-        if(requestURI.startsWith("/api/auth/register") || requestURI.startsWith("/api/auth/login")){
+        if (requestURI.startsWith("/api/auth/register") || requestURI.startsWith("/api/auth/login")
+            ||
+            requestURI.startsWith("/swagger-ui") ||
+            requestURI.startsWith("/v3/api-docs") ||
+            requestURI.startsWith("/swagger-resources") ||
+            requestURI.startsWith("/webjars")) {
             filterChain.doFilter(servletRequest, servletResponse);
             return;
         }
@@ -52,9 +55,7 @@ public class JwtFilter implements Filter {
             return;
         }
 
-
-
-        filterChain.doFilter(servletRequest,servletResponse);
+        filterChain.doFilter(servletRequest, servletResponse);
     }
 
     // 공통 에러 응답 처리
