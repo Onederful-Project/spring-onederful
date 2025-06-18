@@ -34,7 +34,6 @@ public class TaskService {
         User me = userRepository.findById(userId).orElseThrow();
         User manager = userRepository.findById(request.getAssigneeId()).orElseThrow();
 
-        // user (생성한 사람은 추후 로그인 연동 후 수정 예정)
         Task task = Task.builder()
             .title(request.getTitle())
             .description(request.getDescription())
@@ -45,9 +44,9 @@ public class TaskService {
             .dueDate(request.getDueDate().toLocalDateTime())
             .build();
 
-        taskRepository.save(task);
+        Task savedTask = taskRepository.save(task);
 
-        return TaskResponse.of(task);
+        return TaskResponse.of(savedTask);
     }
 
     @Transactional(readOnly = true)
