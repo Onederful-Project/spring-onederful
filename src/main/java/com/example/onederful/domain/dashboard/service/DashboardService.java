@@ -27,7 +27,7 @@ public class DashboardService {
 
     public List<MyTasksTodayResponseDto> getMyTasksToday(Long userId){
 
-        userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_EXIST));
+        userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.NONEXISTENT_USER));
 
         List<Task> tasks = dashboardRepository.getMyTasksToday(userId);
         List<MyTasksTodayResponseDto> dtos = tasks.stream()
