@@ -112,6 +112,9 @@ public class JwtUtil {
      */
     public Long extractId(HttpServletRequest request) {
         String authorizationHeader = request.getHeader("Authorization");
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            return null; // 로그인 안 된 상태면 null
+        }
         String token = authorizationHeader.substring(7);
         return extractAllClaims(token).get("id", Long.class);
     }
