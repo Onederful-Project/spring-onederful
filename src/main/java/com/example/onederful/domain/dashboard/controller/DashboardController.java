@@ -1,6 +1,6 @@
 package com.example.onederful.domain.dashboard.controller;
 
-import com.example.onederful.domain.dashboard.dto.ApiResponse;
+import com.example.onederful.common.ApiResponseDto;
 import com.example.onederful.domain.dashboard.dto.MyTasksTodayResponseDto;
 import com.example.onederful.domain.dashboard.dto.StatisticsResponseDto;
 import com.example.onederful.domain.dashboard.service.DashboardService;
@@ -24,11 +24,11 @@ public class DashboardController {
     private final JwtUtil jwtUtil;
 
     @GetMapping("/statistics")
-    public ResponseEntity<ApiResponse<StatisticsResponseDto>> getStatistics(){
+    public ResponseEntity<ApiResponseDto> getStatistics(){
         StatisticsResponseDto data = dashboardService.getStatistics();
 
         return new ResponseEntity<>(
-                ApiResponse.success(
+                ApiResponseDto.success(
                     "통계정보를 조회했습니다.",
                     data
                 ),
@@ -37,7 +37,7 @@ public class DashboardController {
     }
 
     @GetMapping("/my-tasks-today")
-    public ResponseEntity<ApiResponse<List<MyTasksTodayResponseDto>>> getMyTasksToday(
+    public ResponseEntity<ApiResponseDto> getMyTasksToday(
             HttpServletRequest request
     ){
         Long userId = jwtUtil.extractId(request);
@@ -45,7 +45,7 @@ public class DashboardController {
         List<MyTasksTodayResponseDto> data = dashboardService.getMyTasksToday(userId);
 
         return new ResponseEntity<>(
-                ApiResponse.success(
+                ApiResponseDto.success(
                         "오늘 내 태스크 정보를 조회했습니다.",
                         data
                 ),
