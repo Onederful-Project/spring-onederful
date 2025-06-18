@@ -28,6 +28,10 @@ public class JwtFilter implements Filter {
 
         String authorizationHeader = request.getHeader("Authorization");
 
+        if("OPTIONS".equals(request.getMethod())) {
+            filterChain.doFilter(servletRequest, servletResponse);
+        }
+
         // 회원가입, 로그인 경우
         if (requestURI.startsWith("/api/auth/register") || requestURI.startsWith("/api/auth/login")
             ||
@@ -48,7 +52,7 @@ public class JwtFilter implements Filter {
         // "Bearer" 빼고 확인
         String jwt = authorizationHeader.substring(7);
 
-//        // 토큰 검증
+        // 토큰 검증
         String errorMessage = jwtUtil.validateToken(jwt);
         if (errorMessage != null) {
             errorResponse(response, HttpServletResponse.SC_FORBIDDEN, errorMessage);
