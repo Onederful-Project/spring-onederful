@@ -1,8 +1,9 @@
 package com.example.onederful.domain.task.controller;
 
+import com.example.onederful.common.ApiResponseDto;
+import com.example.onederful.domain.task.common.CreateGroup;
+import com.example.onederful.domain.task.common.UpdateGroup;
 import com.example.onederful.domain.task.dto.request.TaskSaveRequest;
-import com.example.onederful.domain.task.dto.request.TaskUpdateRequest;
-import com.example.onederful.domain.task.dto.response.CommonResponse;
 import com.example.onederful.domain.task.dto.response.TaskResponse;
 import com.example.onederful.domain.task.enums.ProcessStatus;
 import com.example.onederful.domain.task.service.TaskService;
@@ -10,7 +11,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import java.time.OffsetDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -37,28 +37,25 @@ public class TaskController {
     private final TaskService taskService;
 
     @PostMapping
-    public ResponseEntity<CommonResponse<TaskResponse>> createTask(
-        @RequestBody @Valid TaskSaveRequest request, HttpServletRequest httpServletRequest) {
+    public ResponseEntity<ApiResponseDto> createTask(
+        @RequestBody @Validated(CreateGroup.class) @Valid TaskSaveRequest request,
+        HttpServletRequest httpServletRequest) {
 
         TaskResponse response = taskService.createTask(request, httpServletRequest);
 
-        return ResponseEntity.ok(
-            CommonResponse.create(true, "업무 생성 성공", response,
-                OffsetDateTime.now()));
+        return ResponseEntity.ok(ApiResponseDto.success("업무 생성에 성공하였습니다.", response));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CommonResponse<TaskResponse>> findTask(@PathVariable @NotNull Long id) {
+    public ResponseEntity<ApiResponseDto> findTask(@PathVariable @NotNull Long id) {
 
         TaskResponse response = taskService.findTask(id);
 
-        return ResponseEntity.ok(
-            CommonResponse.create(true, "업무 상세조회 성공", response,
-                OffsetDateTime.now()));
+        return ResponseEntity.ok(ApiResponseDto.success("업무 상세조회에 성공하였습니다.", response));
     }
 
     @GetMapping
-    public ResponseEntity<CommonResponse<Page<TaskResponse>>> findTasks(
+    public ResponseEntity<ApiResponseDto> findTasks(
         @RequestParam(defaultValue = "1") @Min(1) int page,
         @RequestParam(defaultValue = "5") @Min(5) int size,
         @RequestParam(defaultValue = "") String search,
@@ -69,28 +66,23 @@ public class TaskController {
         Page<TaskResponse> response = taskService.findTasks(pageable, search,
             status);
 
-        return ResponseEntity.ok(
-            CommonResponse.create(true, "업무 리스트 조회 성공", response,
-                OffsetDateTime.now()));
+        return ResponseEntity.ok(ApiResponseDto.success("업무 리스트 조회에 성공하였습니다.", response));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<CommonResponse<Void>> deleteTask(@PathVariable @NotNull Long id) {
+    public ResponseEntity<ApiResponseDto> deleteTask(@PathVariable @NotNull Long id) {
 
         taskService.deleteTask(id);
 
-        return ResponseEntity.ok(
-            CommonResponse.create(true, "업무 삭제 성공", null,
-                OffsetDateTime.now()));
+        return ResponseEntity.ok(ApiResponseDto.success("업무 삭제에 성공하였습니다.", null));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CommonResponse<TaskResponse>> updateTask(@PathVariable @NotNull Long id,
-        @RequestBody @Valid TaskUpdateRequest request) {
+    public ResponseEntity<ApiResponseDto> updateTask(@PathVariable @NotNull Long id,
+        @RequestBody @Validated(UpdateGroup.class) @Valid TaskSaveRequest request) {
 
         TaskResponse response = taskService.updateTask(id, request);
 
-        return ResponseEntity.ok(
-            CommonResponse.create(true, "업무 수정 성공", response, OffsetDateTime.now()));
+        return ResponseEntity.ok(ApiResponseDto.success("업무 수정에 성공하였습니다.", response));
     }
 }
