@@ -85,6 +85,7 @@ public class CommentService {
 
     public List<CommentResponseDataDto> findCommentByContent(String content){
 
+        // 찾는 내용을 댓글을 적은 사람과 댓글 내용에서 검색
         List<Comment> commentListByContent = commentRepository.findByContentOrUsername("%"+content+"%");
 
         return commentListByContent.stream()
