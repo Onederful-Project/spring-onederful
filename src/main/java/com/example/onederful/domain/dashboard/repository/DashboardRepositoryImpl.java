@@ -4,13 +4,17 @@ import com.example.onederful.domain.dashboard.dto.MyTasksTodayResponseDto;
 import com.example.onederful.domain.dashboard.dto.StatisticsResponseDto;
 import com.example.onederful.domain.task.entity.QTask;
 import com.example.onederful.domain.task.entity.Task;
+import com.example.onederful.domain.task.enums.Priority;
 import com.example.onederful.domain.task.enums.ProcessStatus;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Repository
@@ -100,6 +104,11 @@ public class DashboardRepositoryImpl implements DashboardRepository {
     @Override
     public List<Task> getMyTasksToday(Long userId){
         task = QTask.task;
+        Map<Priority, Integer> priority = Map.of(
+                        Priority.HIGH, 0,
+                        Priority.MEDIUM, 1,
+                        Priority.LOW, 2
+        );
 
         List<Task> taskList = queryFactory
                 .select(task)
@@ -109,9 +118,11 @@ public class DashboardRepositoryImpl implements DashboardRepository {
                         task.isDeleted.isFalse(),
                         task.status.in(ProcessStatus.TODO, ProcessStatus.IN_PROGRESS)
                 )
-                .orderBy(task.priority.desc())
                 .fetch();
+        List<Task> sortedTaskList = taskList.stream()
+                .sorted(Comparator.comparing(task -> priority.get(task.getPriority())))
+                .collect(Collectors.toList());
 
-        return taskList;
+        return sortedTaskList;
     }
 }
