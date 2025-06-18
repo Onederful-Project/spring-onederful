@@ -94,6 +94,10 @@ public class Task {
         this.status = status;
     }
 
+    public void updateTaskStatus(ProcessStatus status) {
+        this.status = status;
+    }
+
     public void delete() {
         this.isDeleted = true;
         this.deletedAt = LocalDateTime.now();
