@@ -1,22 +1,21 @@
 package com.example.onederful.domain.task.service;
 
 import com.example.onederful.domain.task.dto.request.TaskSaveRequest;
-import com.example.onederful.domain.task.dto.request.TaskUpdateRequest;
 import com.example.onederful.domain.task.dto.response.TaskResponse;
 import com.example.onederful.domain.task.entity.Task;
 import com.example.onederful.domain.task.enums.ProcessStatus;
 import com.example.onederful.domain.task.repository.TaskRepository;
 import com.example.onederful.domain.user.entity.User;
 import com.example.onederful.domain.user.repository.UserRepository;
+import com.example.onederful.exception.CustomException;
+import com.example.onederful.exception.ErrorCode;
 import com.example.onederful.security.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -31,8 +30,10 @@ public class TaskService {
 
         Long userId = jwtUtil.extractId(httpServletRequest);
 
-        User me = userRepository.findById(userId).orElseThrow();
-        User manager = userRepository.findById(request.getAssigneeId()).orElseThrow();
+        User me = userRepository.findById(userId)
+            .orElseThrow(() -> new CustomException(ErrorCode.NONEXISTENT_USER));
+        User manager = userRepository.findById(request.getAssigneeId())
+            .orElseThrow(() -> new CustomException(ErrorCode.NONEXISTENT_USER));
 
         Task task = Task.builder()
             .title(request.getTitle())
@@ -52,7 +53,8 @@ public class TaskService {
     @Transactional(readOnly = true)
     public TaskResponse findTask(Long id) {
 
-        Task task = taskRepository.findById(id).orElseThrow();
+        Task task = taskRepository.findById(id)
+            .orElseThrow(() -> new CustomException(ErrorCode.NONEXISTENT_TASK));
 
         return TaskResponse.of(task);
     }
@@ -68,36 +70,36 @@ public class TaskService {
     @Transactional
     public void deleteTask(Long id) {
 
-        Task task = taskRepository.findById(id).orElseThrow();
+        Task task = taskRepository.findById(id)
+            .orElseThrow(() -> new CustomException(ErrorCode.NONEXISTENT_TASK));
 
         task.delete();
     }
 
     @Transactional
-    public TaskResponse updateTask(Long id, TaskUpdateRequest request) {
+    public TaskResponse updateTask(Long id, TaskSaveRequest request) {
 
-        Task task = taskRepository.findById(id).orElseThrow();
-        User assignee = userRepository.findById(request.getAssigneeId()).orElseThrow();
+        Task task = taskRepository.findById(id)
+            .orElseThrow(() -> new CustomException(ErrorCode.NONEXISTENT_TASK));
+        User assignee = userRepository.findById(request.getAssigneeId())
+            .orElseThrow(() -> new CustomException(ErrorCode.NONEXISTENT_USER));
 
         if (task.getStatus() == ProcessStatus.DONE) {
             if (request.getStatus() != ProcessStatus.DONE) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "DONE 상태는 이전 상태로 변경 할 수 없습니다.");
+                throw new CustomException(ErrorCode.BAD_REQUEST_STATUS);
             }
         }
 
         if (task.getStatus() == ProcessStatus.TODO) {
             if (request.getStatus() != ProcessStatus.IN_PROGRESS) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "TODO -> IN_PROCESS으로만 상태 변경이 가능합니다.");
+                throw new CustomException(ErrorCode.BAD_REQUEST_STATUS);
             }
             task.taskStart();
         }
 
         if (task.getStatus() == ProcessStatus.IN_PROGRESS) {
             if (request.getStatus() != ProcessStatus.DONE) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "IN_PROCESS -> DONE으로만 상태 변경이 가능합니다.");
+                throw new CustomException(ErrorCode.BAD_REQUEST_STATUS);
             }
         }
 
@@ -106,5 +108,11 @@ public class TaskService {
             request.getDueDate().toLocalDateTime(), request.getStatus());
 
         return TaskResponse.of(task);
+    }
+
+    @Transactional(readOnly = true)
+    public Task findById(Long id) {
+        return taskRepository.findById(id)
+            .orElseThrow(() -> new CustomException(ErrorCode.NONEXISTENT_TASK));
     }
 }
