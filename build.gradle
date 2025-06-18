@@ -44,7 +44,7 @@ dependencies {
 	// OffsetDateTime 역직렬화 하기 위해 필요한 모듈
 	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 
-	//QueryDDL 추가
+	//QueryDsL 추가
 	implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
 	annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"
 	annotationProcessor "jakarta.annotation:jakarta.annotation-api"
