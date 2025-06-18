@@ -1,6 +1,7 @@
 package com.example.onederful.filter;
 
 import com.example.onederful.security.JwtUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
@@ -11,6 +12,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 
 import java.io.IOException;
 import java.time.OffsetDateTime;
@@ -83,4 +86,12 @@ public class JwtFilter implements Filter {
 
         response.getWriter().write(json);
     }
+
+//    private void errorResponse(HttpServletResponse response, String message) throws IOException{
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        response.setCharacterEncoding("utf-8");
+//        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+//        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+//        response.getWriter().write(objectMapper.writeValueAsString(Response.builder));
+//    }
 }
