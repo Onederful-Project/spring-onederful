@@ -2,18 +2,17 @@ package com.example.onederful.domain.log.controller;
 
 import java.time.LocalDate;
 
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.onederful.domain.log.dto.LogResponseDto;
+import com.example.onederful.common.ApiResponseDto;
+import com.example.onederful.domain.log.dto.LogsResponse;
 import com.example.onederful.domain.log.service.LogService;
 
 import lombok.RequiredArgsConstructor;
@@ -37,7 +36,7 @@ public class LogController {
 	 * @return 조회된 활동 로그
 	 */
 	@GetMapping("/api/activities")
-	public ResponseEntity<Page<LogResponseDto>> getLog(
+	public ResponseEntity<ApiResponseDto> getLog(
 		@RequestParam(required = false) Long userId,
 		@RequestParam(required = false) String activity,
 		@RequestParam(required = false) Long targetId,
@@ -45,6 +44,9 @@ public class LogController {
 		@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate end,
 		@PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
 	) {
-		return new ResponseEntity<>(logService.getLog(userId, activity, targetId, start, end, pageable), HttpStatus.OK);
+
+		LogsResponse response = logService.findLog(userId, activity, targetId, start, end, pageable);
+
+		return ResponseEntity.ok(ApiResponseDto.success("활동 로그 리스트 조회에 성공하였습니다.", response));
 	}
 }

@@ -33,12 +33,15 @@ public class LoggingAspect {
 	@Pointcut(
 		"execution(* com.example..TaskService.createTask(..)) || " +
 		"execution(* com.example..TaskService.updateTask(..)) || " +
-		"execution(* com.example..TaskService.deleteTask(..))"
+		"execution(* com.example..TaskService.deleteTask(..)) || " +
+		"execution(* com.example..CommentService.save(..)) || " +
+		"execution(* com.example..CommentService.updateComment(..)) || " +
+		"execution(* com.example..CommentService.deleteComment(..))"
 	)
 	public void cudMethods() {}
 
-	@Pointcut("execution(* com.example..TaskService.updateTask(..))")
-	public void updateTaskMethod() {}
+	@Pointcut("execution(* com.example..TaskService.updateTaskStatus(..))")
+	public void updateTaskStatusMethod() {}
 
 	// 로그인
 	@AfterReturning(pointcut = "loginMethod()", returning = "result")
@@ -63,7 +66,7 @@ public class LoggingAspect {
 	}
 
 	// 상태 변경
-	@Around("updateTaskMethod()")
+	@Around("updateTaskStatusMethod()")
 	public Object logTaskStatusChange(ProceedingJoinPoint joinPoint) throws Throwable {
 		Object[] args = joinPoint.getArgs();
 		Long taskId = (Long) args[0]; // 첫 번째 인자가 taskId
