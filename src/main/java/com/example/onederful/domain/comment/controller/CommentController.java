@@ -34,7 +34,7 @@ public class CommentController {
             @PathVariable Long task_id, @PathVariable Long comment_id, @RequestBody UpdateCommentRequestDto requestDto, HttpServletRequest httpServletRequest
     ) {
         UpdateCommentResponseDataDto updateCommentResponseDataDto =
-                commentService.updateComment(comment_id, requestDto.getContent(), httpServletRequest);
+                commentService.updateComment(task_id, comment_id, requestDto.getContent(), httpServletRequest);
         return ResponseEntity.ok(ResponseDto.success("댓글이 수정되었습니다.", updateCommentResponseDataDto));
     }
 

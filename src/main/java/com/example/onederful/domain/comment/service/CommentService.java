@@ -10,6 +10,8 @@ import com.example.onederful.domain.task.entity.Task;
 import com.example.onederful.domain.task.repository.TaskRepository;
 import com.example.onederful.domain.user.entity.User;
 import com.example.onederful.domain.user.repository.UserRepository;
+import com.example.onederful.exception.CustomException;
+import com.example.onederful.exception.ErrorCode;
 import com.example.onederful.security.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -34,10 +36,10 @@ public class CommentService {
         Long user_id = jwtUtil.extractId(httpServletRequest);
 
         User user = userRepository.findById(user_id)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.NONEXISTENT_USER));
 
         Task task = taskRepository.findById(task_id)
-                .orElseThrow(() -> new IllegalArgumentException("테스크를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.NONEXISTENT_TASK));
 
         Comment comment = new Comment(content, user, task);
         Comment savedComment = commentRepository.save(comment);
@@ -47,26 +49,32 @@ public class CommentService {
     }
 
     @Transactional
-    public UpdateCommentResponseDataDto updateComment(Long comment_id, String content, HttpServletRequest httpServletRequest) {
+    public UpdateCommentResponseDataDto updateComment(Long task_id, Long comment_id, String content, HttpServletRequest httpServletRequest) {
+        Task task = taskRepository.findById(task_id)
+                .orElseThrow(() -> new CustomException(ErrorCode.NONEXISTENT_TASK));
+
         Comment comment = commentRepository.findById(comment_id)
-                .orElseThrow(() ->new IllegalArgumentException("댓글을 찾을 수 없습니다."));
+                .orElseThrow(() ->new CustomException(ErrorCode.NONEXISTENT_COMMENT));
 
         // 토큰에서 Id 가져오기
         Long userId = jwtUtil.extractId(httpServletRequest);
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.NONEXISTENT_USER));
 
         if(comment.getIsDeleted()==true){
-            throw new IllegalArgumentException("삭제된 댓글입니다.");
+            throw new CustomException(ErrorCode.INVALID_COMMENT);
         }
 
         comment.update(content);
         return new UpdateCommentResponseDataDto(comment.getId(), user.getName(), comment.getContent(),comment.getCreatedAt(), comment.getUpdatedAt());
     }
 
-    public List<CommentResponseDataDto> findAllCommentByTaskId(Long taskId){
-        List<Comment> commentListById = commentRepository.findAllByTaskIdOrderByCreatedAtDesc(taskId);
+    public List<CommentResponseDataDto> findAllCommentByTaskId(Long task_id){
+        Task task = taskRepository.findById(task_id)
+                .orElseThrow(() -> new CustomException(ErrorCode.NONEXISTENT_TASK));
+
+        List<Comment> commentListById = commentRepository.findAllByTaskIdOrderByCreatedAtDesc(task_id);
 
         return commentListById.stream()
                 .filter(comment -> !comment.getIsDeleted())
@@ -77,7 +85,7 @@ public class CommentService {
 
     public List<CommentResponseDataDto> findCommentByContent(String content){
 
-        List<Comment> commentListByContent = commentRepository.findBycontentLike("%"+content+"%");
+        List<Comment> commentListByContent = commentRepository.findByContentOrUsername("%"+content+"%");
 
         return commentListByContent.stream()
                 .filter(comment -> !comment.getIsDeleted())
@@ -89,7 +97,7 @@ public class CommentService {
     @Transactional
     public void deleteComment(Long commentId){
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() ->new IllegalArgumentException("댓글을 찾을 수 없습니다."));
+                .orElseThrow(() ->new CustomException(ErrorCode.NONEXISTENT_COMMENT));
 
         comment.delete();
     }
