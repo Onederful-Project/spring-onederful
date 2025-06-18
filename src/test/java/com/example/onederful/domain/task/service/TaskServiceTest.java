@@ -6,6 +6,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
 import com.example.onederful.domain.task.dto.request.TaskSaveRequest;
+import com.example.onederful.domain.task.dto.request.TaskStatusUpdateRequest;
 import com.example.onederful.domain.task.entity.Task;
 import com.example.onederful.domain.task.enums.Priority;
 import com.example.onederful.domain.task.enums.ProcessStatus;
@@ -345,5 +346,87 @@ public class TaskServiceTest {
 
         Assertions.assertEquals(task.getAssignee(), manager);
         Assertions.assertEquals(ProcessStatus.IN_PROGRESS, task.getStatus());
+    }
+
+    @Test
+    @DisplayName("업무 상태 변경이 성공한다.")
+    void 업무_상태_변경_성공_테스트() {
+        //given
+
+        Long id = 1L;
+
+        TaskStatusUpdateRequest request = new TaskStatusUpdateRequest(ProcessStatus.IN_PROGRESS);
+
+        Long userId = 1L;
+
+        User me = User.builder()
+            .id(userId)
+            .email("me@example.com")
+            .name("me1")
+            .password("!@A12345")
+            .role(Role.USER)
+            .username("me1")
+            .build();
+
+        Task task = Task.builder()
+            .id(2L)
+            .title("test")
+            .description("description")
+            .priority(Priority.LOW)
+            .assignee(me)
+            .user(me)
+            .status(ProcessStatus.TODO)
+            .dueDate(LocalDateTime.now())
+            .build();
+
+        ReflectionTestUtils.setField(task, "createdAt", LocalDateTime.now());
+        ReflectionTestUtils.setField(task, "updatedAt", LocalDateTime.now());
+
+        given(taskRepository.findById(anyLong())).willReturn(Optional.of(task));
+
+        //when
+
+        taskService.updateTaskStatus(id, request);
+
+        //then
+
+        Assertions.assertEquals(ProcessStatus.IN_PROGRESS, task.getStatus());
+    }
+
+    @Test
+    @DisplayName("기본 조회가 성공한다.")
+    void 기본_조회_성공_테스트() {
+        Long id = 1L;
+
+        Long userId = 1L;
+
+        User me = User.builder()
+            .id(userId)
+            .email("me@example.com")
+            .name("me1")
+            .password("!@A12345")
+            .role(Role.USER)
+            .username("me1")
+            .build();
+
+        Task task = Task.builder()
+            .id(2L)
+            .title("test")
+            .description("description")
+            .priority(Priority.LOW)
+            .assignee(me)
+            .user(me)
+            .status(ProcessStatus.TODO)
+            .dueDate(LocalDateTime.now())
+            .build();
+
+        ReflectionTestUtils.setField(task, "createdAt", LocalDateTime.now());
+        ReflectionTestUtils.setField(task, "updatedAt", LocalDateTime.now());
+
+        given(taskRepository.findById(anyLong())).willReturn(Optional.of(task));
+
+        taskService.findById(id);
+
+        verify(taskRepository).findById(anyLong());
     }
 }
