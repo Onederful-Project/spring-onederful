@@ -28,11 +28,15 @@ public class UserService {
     public UserResponseDto signup(RequestDto dto){
         
         // 이메일 중복 확인
-        userRepository.findByEmail(dto.getEmail()).ifPresent(
-            user -> {
-                throw new CustomException(ErrorCode.DUPLICATE_USER);
-            }
-        );
+        if(userRepository.existsByEmail(dto.getEmail())){
+            throw new CustomException(ErrorCode.DUPLICATE_EMAIL);
+        }
+
+
+        // 아이디 중복 확인
+        if(userRepository.existsByUsername(dto.getUsername())){
+            throw new CustomException(ErrorCode.DUPLICATE_USER);
+        }
 
         // Dto → Entity
         User user = UserMapper.user(dto);
@@ -51,6 +55,7 @@ public class UserService {
     public Tokeninfo login(RequestDto dto){
         String username = dto.getUsername();
         String password = dto.getPassword();
+
 
         User user = userRepository.findByUsername(username).orElseThrow(
             () -> new CustomException(ErrorCode.BAD_REQUEST)
