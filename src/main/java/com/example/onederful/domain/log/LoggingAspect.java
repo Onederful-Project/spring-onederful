@@ -1,6 +1,5 @@
 package com.example.onederful.domain.log;
 
-import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
@@ -25,19 +24,18 @@ public class LoggingAspect {
 	)
 	public void cudMethods() {}
 
-	@Pointcut("execution(* com.example..userService.login())")
-	public void loginMethods() {}
+	@Pointcut("execution(* com.example..UserService.login(..))")
+	public void loginMethod() {}
 
 	// 생성, 수정, 삭제
 	@AfterReturning(pointcut = "cudMethods()", returning = "result")
-	public void logCudMethods(JoinPoint joinPoint, Object result) {
-		System.out.println("메서드 정상 실행 후: 로그 기록");
+	public void logCudMethods(Object result) {
 
-		// HttpServletRequest으로부터 요청 ip, 메서드, url
+		// HttpServletRequest으로부터 요청 ip, 메서드, url, 로그인한 userid
 		HttpRequestUtil.RequestInfo request = httpRequestUtil.getRequestInfo();
 
 		// 로그 저장
-		logService.saveLog(request.getIp(), request.getMethod(), request.getUrl(), request.getUserId(), result);
+		logService.saveCudLog(request.getIp(), request.getMethod(), request.getUrl(), request.getUserId(), result);
 	}
 
 	// 상태 변경
@@ -56,5 +54,14 @@ public class LoggingAspect {
 	// }
 
 	// 로그인/로그아웃
+	@AfterReturning(pointcut = "loginMethod()", returning = "result")
+	public void logLoginMethod(Object result) {
+		System.out.println("메서드 정상 실행 후: 로그 기록");
 
+		// HttpServletRequest으로부터 요청 ip, 메서드, url
+		HttpRequestUtil.RequestInfo request = httpRequestUtil.getRequestInfo();
+
+		// 로그 저장
+		logService.saveLoginLog(request.getIp(), request.getMethod(), request.getUrl(), result);
+	}
 }

@@ -14,10 +14,13 @@ import com.example.onederful.domain.log.enums.Method;
 import com.example.onederful.domain.log.repository.LogRepository;
 import com.example.onederful.domain.log.repository.LogSpecification;
 import com.example.onederful.domain.task.dto.response.TaskResponse;
+import com.example.onederful.domain.user.dto.ApiResponseDto;
+import com.example.onederful.domain.user.dto.Tokeninfo;
 import com.example.onederful.domain.user.entity.User;
 import com.example.onederful.domain.user.repository.UserRepository;
 import com.example.onederful.exception.CustomException;
 import com.example.onederful.exception.ErrorCode;
+import com.example.onederful.security.JwtUtil;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +31,7 @@ public class LogService {
 
 	private final LogRepository logRepository;
 	private final UserRepository userRepositry;
+	private final JwtUtil jwtUtil;
 
 	public Page<LogResponseDto> getLog(
 		Long userId, String activityStr, Long targetId,
@@ -46,7 +50,7 @@ public class LogService {
 	}
 
 	@Transactional
-	public void saveLog(String ip, Method method, String url, Long userId, Object result) {
+	public void saveCudLog(String ip, Method method, String url, Long userId, Object result) {
 		// 현재 유저 조회
 		User user  = userRepositry.findById(userId).orElseThrow(
 			() -> new CustomException(ErrorCode.UNAUTHORIZED)
@@ -81,6 +85,47 @@ public class LogService {
 
 		// if (targetId == null) 예외 처리
 
+		// 로그 DB에 저장
+		Log log = Log.builder()
+			.user(user)
+			.activity(activity)
+			.ipAddress(ip)
+			.method(method)
+			.targetId(targetId)
+			.requestUrl(url)
+			.build();
+
+		logRepository.save(log);
+	}
+
+	@Transactional
+	public void saveLoginLog(String ip, Method method, String url, Object result) {
+		// userId
+		Long userId = null;
+		if (result instanceof ApiResponseDto) {
+			Object data = ((ApiResponseDto) result).getData();
+			if (data instanceof Tokeninfo) {
+				String token = ((Tokeninfo) data).getToken();
+				userId = jwtUtil.extractAllClaims(token).get("id", Long.class);
+			}
+		}
+
+		// 현재 유저 조회
+		User user  = userRepositry.findById(userId).orElseThrow(
+			() -> new CustomException(ErrorCode.UNAUTHORIZED)
+		);
+
+		// 활동 유형
+		Activity activity = Activity.USER_LOGGED_IN;
+
+		// if (activity == null) 예외 처리
+
+		// 대상 id
+		Long targetId = userId;
+
+		// if (targetId == null) 예외 처리
+
+		// 로그 DB에 저장
 		Log log = Log.builder()
 			.user(user)
 			.activity(activity)
