@@ -2,7 +2,6 @@ package com.example.onederful.domain.user.service;
 
 import com.example.onederful.config.PasswordEncoder;
 import com.example.onederful.domain.user.common.UserMapper;
-import com.example.onederful.domain.user.dto.ApiResponseDto;
 import com.example.onederful.domain.user.dto.RequestDto;
 import com.example.onederful.domain.user.dto.Tokeninfo;
 import com.example.onederful.domain.user.dto.UserResponseDto;
@@ -14,6 +13,7 @@ import com.example.onederful.security.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -23,9 +23,10 @@ public class UserService {
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
 
+    @Transactional
     // 회원가입
-    public ApiResponseDto signup(RequestDto dto) {
-
+    public UserResponseDto signup(RequestDto dto){
+        
         // 이메일 중복 확인
         userRepository.findByEmail(dto.getEmail()).ifPresent(
             user -> {
@@ -42,14 +43,12 @@ public class UserService {
         User savedUser = userRepository.save(user);
 
         // ResponseBody data(유저 정보)
-        UserResponseDto data = UserMapper.data(savedUser);
-
-        return UserMapper.signupResponse(data);
+        return  UserMapper.data(savedUser);
     }
 
 
     // 로그인
-    public ApiResponseDto login(RequestDto dto) {
+    public Tokeninfo login(RequestDto dto){
         String username = dto.getUsername();
         String password = dto.getPassword();
 
@@ -65,24 +64,51 @@ public class UserService {
         String token = jwtUtil.generateToken(user);
 
         // ResponseBody data(Token)
-        Tokeninfo data = UserMapper.token(token);
-
-        return UserMapper.LoginResponse(data);
+        return token(token);
     }
 
-
+    @Transactional
     // 회원 정보 조회
-    public ApiResponseDto select(HttpServletRequest request) {
+    public UserResponseDto select(HttpServletRequest request){
 
         // 토큰에서 Id 가져오기
         Long userId = jwtUtil.extractId(request);
 
         User user = userRepository.findById(userId).orElseThrow(
-            () -> new CustomException(ErrorCode.UNAUTHORIZED)
+                () -> new CustomException(ErrorCode.UNAUTHORIZED)
         );
 
-        UserResponseDto data = UserMapper.data(user);
-
-        return UserMapper.selectResponse(data);
+        return UserMapper.data(user);
     }
+
+    @Transactional
+    // 회원 탈퇴
+    public void withdraw(HttpServletRequest request , RequestDto dto){
+        // 토큰에서 Id 가져오기
+        Long userId = jwtUtil.extractId(request);
+
+        // 비밀번호
+        String password = dto.getPassword();
+
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new CustomException(ErrorCode.UNAUTHORIZED)
+        );
+
+        if (!passwordEncoder.matches(password,user.getPassword())) {
+            throw new CustomException(ErrorCode.INVALID_PASSWORD);
+        }
+
+        user.delete();
+    }
+
+
+    // ResponseBody date (Token)
+    private Tokeninfo token (String token){
+
+        String newToken = token.substring(7);
+
+        return new Tokeninfo(newToken);
+    }
+
+
 }

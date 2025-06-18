@@ -1,21 +1,15 @@
 package com.example.onederful.domain.user.entity;
 
 import com.example.onederful.domain.user.enums.Role;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Where;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -27,6 +21,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
+@Where(clause = "is_deleted = false")
 public class User {
 
     @Id
@@ -64,7 +59,11 @@ public class User {
     @Column(name="is_deleted", nullable = false)
     private Boolean isDeleted = false;
 
-    public void setEncodedPassword(String Password){
-        this.password = Password;
+    public void setEncodedPassword(String encodedPassword){
+        this.password = encodedPassword;
+    }
+
+    public void delete() {
+        this.isDeleted = true;
     }
 }
