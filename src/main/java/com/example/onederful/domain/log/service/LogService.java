@@ -39,8 +39,16 @@ public class LogService {
 		Long userId, String activityStr, Long targetId,
 		LocalDate start, LocalDate end, Pageable pageable) {
 
+		Activity activity = null;
+		try {
+			if (activityStr != null) {
+				activity = Activity.valueOf(activityStr);
+			}
+		} catch (IllegalArgumentException e) {
+			throw new CustomException(ErrorCode.INVALID_ACTIVITY);
+		}
+
 		// 들어온 조건 여부로 동적 쿼리 설정
-		Activity activity = (activityStr != null) ? Activity.valueOf(activityStr) : null;
 		Specification<Log> spec =
 			LogSpecification.hasUserId(userId)
 			.and(LogSpecification.hasActivity(activity))
