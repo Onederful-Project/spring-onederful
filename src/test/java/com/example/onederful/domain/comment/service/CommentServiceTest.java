@@ -112,18 +112,6 @@ class CommentServiceTest {
     }
 
     @Test
-    void findAllCommentByTaskId() {
-    }
-
-    @Test
-    void findAllCommentByTaskIdInPage() {
-    }
-
-    @Test
-    void findCommentByContent() {
-    }
-
-    @Test
     @DisplayName("댓글이 삭제 되는지")
     void deleteComment() {
         // given
