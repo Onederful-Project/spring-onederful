@@ -5,6 +5,8 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.example.onederful.domain.log.enums.Method;
+import com.example.onederful.exception.CustomException;
+import com.example.onederful.exception.ErrorCode;
 import com.example.onederful.security.JwtUtil;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,11 +24,11 @@ public class HttpRequestUtil {
 	public RequestInfo getRequestInfo() {
 		ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
 		if (attrs == null) {
-			throw new IllegalStateException("Request attributes not found");
+			throw new CustomException(ErrorCode.INVALID_OR_EXPIRED_REQUEST);
 		}
 		HttpServletRequest request = attrs.getRequest();
 		if (request == null) {
-			throw new IllegalStateException("HttpServletRequest not found");
+			throw new CustomException(ErrorCode.INVALID_OR_EXPIRED_REQUEST);
 		}
 
 		// 요청한 사용자의 ip
