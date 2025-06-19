@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Builder
@@ -16,7 +15,7 @@ public class CommentResponseDataDto {
     private final String content;
     private final Long taskId;
     private final Long userId;
-    private final UserData userData;
+    private final UserData user;
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
 
@@ -26,7 +25,7 @@ public class CommentResponseDataDto {
                 .content(comment.getContent())
                 .taskId(comment.getTask().getId())
                 .userId(comment.getUser().getId())
-                .userData(UserData.of(comment.getUser()))
+                .user(UserData.of(comment.getUser()))
                 .createdAt(comment.getCreatedAt())
                 .updatedAt(comment.getUpdatedAt())
                 .build();

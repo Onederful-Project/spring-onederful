@@ -58,7 +58,7 @@ public class CommentController {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<CommentResponseDataDto> commentResponseDtoInPage = commentService.findAllCommentByTaskIdInPage(task_id,pageable);
 
-        ApiResponseDto success = ApiResponseDto.success("task " + task_id + "에 달린 댓글 목록", commentResponseDtoInPage);
+        ApiResponseDto success = ApiResponseDto.success("댓글 목록을 조회했습니다.", commentResponseDtoInPage);
 
         return ResponseEntity.status(HttpStatus.OK).body(success);
     }
