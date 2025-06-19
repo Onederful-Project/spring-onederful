@@ -35,10 +35,12 @@ public class LogService {
 	private final UserRepository userRepositry;
 	private final JwtUtil jwtUtil;
 
+	// log 조회 메서드
 	public LogsResponse findLog(
 		Long userId, String activityStr, Long targetId,
 		LocalDate start, LocalDate end, Pageable pageable) {
 
+		// 활동 유형 Enum 형태로 변환
 		Activity activity = null;
 		try {
 			if (activityStr != null) {
@@ -66,6 +68,41 @@ public class LogService {
 			.build();
 	}
 
+	// 로그인 시 로그 기록
+	@Transactional
+	public void saveLoginLog(String ip, Method method, String url, Object result) {
+		// userId
+		Long userId = null;
+		if (result instanceof Tokeninfo) {
+			String token = ((Tokeninfo) result).getToken();
+			userId = jwtUtil.extractAllClaims(token).get("id", Long.class);
+		}
+
+		// 현재 유저 조회
+		User user  = userRepositry.findById(userId).orElseThrow(
+			() -> new CustomException(ErrorCode.UNAUTHORIZED)
+		);
+
+		// 활동 유형
+		Activity activity = Activity.USER_LOGGED_IN;
+
+		// 대상 id
+		Long targetId = userId;
+
+		// 로그 DB에 저장
+		Log log = Log.builder()
+			.user(user)
+			.activity(activity)
+			.ipAddress(ip)
+			.method(method)
+			.targetId(targetId)
+			.requestUrl(url)
+			.build();
+
+		logRepository.save(log);
+	}
+
+	// 생성, 수정, 삭제 시 로그 기록
 	@Transactional
 	public void saveCudLog(String ip, Method method, String url, Long userId, Object result) {
 		// 현재 유저 조회
@@ -126,39 +163,7 @@ public class LogService {
 		logRepository.save(log);
 	}
 
-	@Transactional
-	public void saveLoginLog(String ip, Method method, String url, Object result) {
-		// userId
-		Long userId = null;
-		if (result instanceof Tokeninfo) {
-			String token = ((Tokeninfo) result).getToken();
-			userId = jwtUtil.extractAllClaims(token).get("id", Long.class);
-		}
-
-		// 현재 유저 조회
-		User user  = userRepositry.findById(userId).orElseThrow(
-			() -> new CustomException(ErrorCode.UNAUTHORIZED)
-		);
-
-		// 활동 유형
-		Activity activity = Activity.USER_LOGGED_IN;
-
-		// 대상 id
-		Long targetId = userId;
-
-		// 로그 DB에 저장
-		Log log = Log.builder()
-			.user(user)
-			.activity(activity)
-			.ipAddress(ip)
-			.method(method)
-			.targetId(targetId)
-			.requestUrl(url)
-			.build();
-
-		logRepository.save(log);
-	}
-
+	// 상태 변경 시 로그 기록
 	public void saveTaskStatusChangeLog(String ip, Method method, String url, Long userId, Long targetId, Activity activity) {
 		// 현재 유저 조회
 		User user  = userRepositry.findById(userId).orElseThrow(

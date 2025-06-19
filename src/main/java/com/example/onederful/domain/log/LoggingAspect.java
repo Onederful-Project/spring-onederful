@@ -43,7 +43,7 @@ public class LoggingAspect {
 	@Pointcut("execution(* com.example..TaskService.updateTaskStatus(..))")
 	public void updateTaskStatusMethod() {}
 
-	// 로그인
+	// 로그인 시 자동 로그 기록
 	@AfterReturning(pointcut = "loginMethod()", returning = "result")
 	public void logLoginMethod(Object result) {
 
@@ -54,7 +54,7 @@ public class LoggingAspect {
 		logService.saveLoginLog(request.getIp(), request.getMethod(), request.getUrl(), result);
 	}
 
-	// 생성, 수정, 삭제
+	// 생성, 수정, 삭제 시 자동 로그 기록
 	@AfterReturning(pointcut = "cudMethods()", returning = "result")
 	public void logCudMethods(Object result) {
 
@@ -65,7 +65,7 @@ public class LoggingAspect {
 		logService.saveCudLog(request.getIp(), request.getMethod(), request.getUrl(), request.getUserId(), result);
 	}
 
-	// 상태 변경
+	// 상태 변경 시 자동 로그 기록
 	@Around("updateTaskStatusMethod()")
 	public Object logTaskStatusChange(ProceedingJoinPoint joinPoint) throws Throwable {
 		Object[] args = joinPoint.getArgs();

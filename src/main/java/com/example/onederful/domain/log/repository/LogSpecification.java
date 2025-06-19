@@ -8,21 +8,25 @@ import com.example.onederful.domain.log.entity.Log;
 import com.example.onederful.domain.log.enums.Activity;
 
 public class LogSpecification {
+	// userId를 통한 검색 조건 (WHERE userId = ?)
 	public static Specification<Log> hasUserId(Long userId) {
 		return (root, query, builder) ->
 			userId == null ? null : builder.equal(root.get("user").get("id"), userId);
 	}
 
+	// activity를 통한 검색 조건 (WHERE activity = ?)
 	public static Specification<Log> hasActivity(Activity activity) {
 		return (root, query, builder) ->
 			activity == null ? null : builder.equal(root.get("activity"), activity);
 	}
 
+	// targetId를 통한 검색 조건 (WHERE targetId = ?)
 	public static Specification<Log> hasTargetId(Long targetId) {
 		return (root, query, builder) ->
 			targetId == null ? null : builder.equal(root.get("targetId"), targetId);
 	}
 
+	// 날짜를 통한 검색 조건 (WHERE ? BETWEEN start and end)
 	public static Specification<Log> betweenDates(LocalDate start, LocalDate end) {
 		return (root, query, builder) -> {
 			// 둘다 없을 경우
