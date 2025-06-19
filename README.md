@@ -85,7 +85,7 @@ API 명세서는 [OutSourcing Project API 문서](https://teamsparta.notion.site
 
 ### USER 도메인 
 
-- **406 Error (회원가입, 로그인)**
+- **406 ERROR (회원가입, 로그인)**
 
   - **응답 할 때 OffsetDateTime 역직렬화 불가 → 의존성을 추가하여 해결**
 
