@@ -91,8 +91,8 @@ public class CommentController {
 
 
     // 댓글 삭제
-    @DeleteMapping("/tasks/{task_id}/comments/{comment_id}")
-    public ResponseEntity<ApiResponseDto> deleteComment(@PathVariable Long task_id,
+    @DeleteMapping("/comments/{comment_id}")
+    public ResponseEntity<ApiResponseDto> deleteComment(
         @PathVariable Long comment_id) {
 
         commentService.deleteComment(comment_id);
