@@ -12,6 +12,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import java.util.List;
@@ -22,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDateTime;
 
-@SpringBootTest
+@DataJpaTest
 @ActiveProfiles("test")
 @Transactional
 public class DashboardRepositoryTest {
@@ -124,6 +125,8 @@ public class DashboardRepositoryTest {
                 .dueDate(LocalDateTime.now().plusDays(5))
                 .build()
         );
+        em.flush();
+        em.clear();
 
         //when
         StatisticsResponseDto result = dashboardRepository.getStatistics();
