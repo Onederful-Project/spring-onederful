@@ -1,9 +1,6 @@
 package com.example.onederful.domain.comment.service;
 
 import com.example.onederful.domain.comment.dto.CommentResponseDataDto;
-import com.example.onederful.domain.comment.dto.CreateCommentResponseDataDto;
-import com.example.onederful.domain.comment.dto.ResponseDto;
-import com.example.onederful.domain.comment.dto.UpdateCommentResponseDataDto;
 import com.example.onederful.domain.comment.entity.Comment;
 import com.example.onederful.domain.comment.repository.CommentRepository;
 import com.example.onederful.domain.task.entity.Task;
@@ -32,7 +29,8 @@ public class CommentService {
     private final TaskRepository taskRepository;
     private final JwtUtil jwtUtil;
 
-    public CreateCommentResponseDataDto save(Long task_id, HttpServletRequest httpServletRequest, String content) {
+    // 댓글 생성
+    public CommentResponseDataDto save(Long task_id, HttpServletRequest httpServletRequest, String content) {
 
         // 토큰에서 Id 가져오기
         Long user_id = jwtUtil.extractId(httpServletRequest);
@@ -44,19 +42,20 @@ public class CommentService {
                 .orElseThrow(() -> new CustomException(ErrorCode.NONEXISTENT_TASK));
 
         Comment comment = new Comment(content, user, task);
-        Comment savedComment = commentRepository.save(comment);
 
-        return new CreateCommentResponseDataDto(savedComment.getId(), user.getName(), savedComment.getContent());
+        Comment savedComment = commentRepository.save(comment);
+        return CommentResponseDataDto.of(savedComment);
 
     }
 
+    // 댓글 수정
     @Transactional
-    public UpdateCommentResponseDataDto updateComment(Long task_id, Long comment_id, String content, HttpServletRequest httpServletRequest) {
+    public CommentResponseDataDto updateComment(Long task_id, Long comment_id, String content, HttpServletRequest httpServletRequest) {
         Task task = taskRepository.findById(task_id)
                 .orElseThrow(() -> new CustomException(ErrorCode.NONEXISTENT_TASK));
 
         Comment comment = commentRepository.findById(comment_id)
-                .orElseThrow(() ->new CustomException(ErrorCode.NONEXISTENT_COMMENT));
+                .orElseThrow(() -> new CustomException(ErrorCode.NONEXISTENT_COMMENT));
 
         // 토큰에서 Id 가져오기
         Long userId = jwtUtil.extractId(httpServletRequest);
@@ -64,38 +63,27 @@ public class CommentService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NONEXISTENT_USER));
 
-        if(comment.getIsDeleted()==true){
+        if (comment.getIsDeleted() == true) {
             throw new CustomException(ErrorCode.INVALID_COMMENT);
         }
 
         comment.update(content);
-        return new UpdateCommentResponseDataDto(comment.getId(), user.getName(), comment.getContent(),comment.getCreatedAt(), comment.getUpdatedAt());
+        return CommentResponseDataDto.of(comment);
     }
 
-    public List<CommentResponseDataDto> findAllCommentByTaskId(Long task_id){
-        Task task = taskRepository.findById(task_id)
-                .orElseThrow(() -> new CustomException(ErrorCode.NONEXISTENT_TASK));
-
-        List<Comment> commentListById = commentRepository.findAllByTaskIdOrderByCreatedAtDesc(task_id);
-
-        return commentListById.stream()
-                .filter(comment -> !comment.getIsDeleted())
-                .map(CommentResponseDataDto::from)
-                .collect(Collectors.toList());
-    }
-
-    public Page<CommentResponseDataDto> findAllCommentByTaskIdInPage(Long task_id, Pageable pageable){
+    // 댓글 조회 (테스크별)
+    public Page<CommentResponseDataDto> findAllCommentByTaskIdInPage(Long task_id, Pageable pageable) {
         // 페이징 대상 조회
         final Page<Comment> commentListByIdInPage = commentRepository.findByTaskIdAndIsDeletedFalse(task_id, pageable);
 
         return commentListByIdInPage.map(CommentResponseDataDto::from);
     }
 
-
-    public List<CommentResponseDataDto> findCommentByContent(String content){
+    // 댓글 조회 (내용 검색)
+    public List<CommentResponseDataDto> findCommentByContent(String content) {
 
         // 찾는 내용을 댓글을 적은 사람과 댓글 내용에서 검색
-        List<Comment> commentListByContent = commentRepository.findByContentOrUsername("%"+content+"%");
+        List<Comment> commentListByContent = commentRepository.findByContentOrUsername("%" + content + "%");
 
         return commentListByContent.stream()
                 .filter(comment -> !comment.getIsDeleted())
@@ -104,10 +92,11 @@ public class CommentService {
     }
 
 
+    // 댓글 삭제
     @Transactional
-    public void deleteComment(Long commentId){
+    public void deleteComment(Long commentId) {
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() ->new CustomException(ErrorCode.NONEXISTENT_COMMENT));
+                .orElseThrow(() -> new CustomException(ErrorCode.NONEXISTENT_COMMENT));
 
         comment.delete();
     }
