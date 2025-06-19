@@ -7,7 +7,7 @@ import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -33,5 +33,5 @@ public class TaskSaveRequest {
 
     @NotNull(message = "마감일은 필수 항목입니다.")
     @FutureOrPresent(message = "마감일은 오늘이후만 가능합니다.")
-    private OffsetDateTime dueDate;
+    private LocalDateTime dueDate;
 }
