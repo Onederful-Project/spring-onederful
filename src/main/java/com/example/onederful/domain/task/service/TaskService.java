@@ -1,9 +1,9 @@
 package com.example.onederful.domain.task.service;
 
+import com.example.onederful.common.ListResponse;
 import com.example.onederful.domain.task.dto.request.TaskSaveRequest;
 import com.example.onederful.domain.task.dto.request.TaskStatusUpdateRequest;
 import com.example.onederful.domain.task.dto.response.TaskResponse;
-import com.example.onederful.domain.task.dto.response.TasksResponse;
 import com.example.onederful.domain.task.entity.Task;
 import com.example.onederful.domain.task.enums.ProcessStatus;
 import com.example.onederful.domain.task.repository.TaskRepository;
@@ -63,16 +63,17 @@ public class TaskService {
     }
 
     @Transactional(readOnly = true)
-    public TasksResponse findTasks(Pageable pageable, String search, ProcessStatus status) {
+    public ListResponse<TaskResponse> findTasks(Pageable pageable, String search,
+        ProcessStatus status) {
 
         Page<Task> tasks = taskRepository.findTasks(search, status, pageable);
 
-        return TasksResponse.builder()
+        return ListResponse.<TaskResponse>builder()
             .content(tasks.getContent().stream().map(TaskResponse::of).collect(Collectors.toList()))
             .totalElements(tasks.getTotalElements())
-            .size((long) tasks.getSize())
-            .number((long) tasks.getNumber())
-            .totalPages((long) tasks.getTotalPages())
+            .size(tasks.getSize())
+            .number(tasks.getNumber())
+            .totalPages(tasks.getTotalPages())
             .build();
     }
 
@@ -128,14 +129,14 @@ public class TaskService {
         }
 
         if (task.getStatus() == ProcessStatus.TODO) {
-            if (status != ProcessStatus.IN_PROGRESS) {
+            if (status != ProcessStatus.TODO && status != ProcessStatus.IN_PROGRESS) {
                 throw new CustomException(ErrorCode.BAD_REQUEST_STATUS);
             }
             task.taskStart();
         }
 
         if (task.getStatus() == ProcessStatus.IN_PROGRESS) {
-            if (status != ProcessStatus.DONE) {
+            if (status != ProcessStatus.IN_PROGRESS && status != ProcessStatus.DONE) {
                 throw new CustomException(ErrorCode.BAD_REQUEST_STATUS);
             }
         }

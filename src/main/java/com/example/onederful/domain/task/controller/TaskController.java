@@ -1,12 +1,12 @@
 package com.example.onederful.domain.task.controller;
 
 import com.example.onederful.common.ApiResponseDto;
+import com.example.onederful.common.ListResponse;
 import com.example.onederful.domain.task.common.CreateGroup;
 import com.example.onederful.domain.task.common.UpdateGroup;
 import com.example.onederful.domain.task.dto.request.TaskSaveRequest;
 import com.example.onederful.domain.task.dto.request.TaskStatusUpdateRequest;
 import com.example.onederful.domain.task.dto.response.TaskResponse;
-import com.example.onederful.domain.task.dto.response.TasksResponse;
 import com.example.onederful.domain.task.enums.ProcessStatus;
 import com.example.onederful.domain.task.service.TaskService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -65,7 +65,7 @@ public class TaskController {
     ) {
         Pageable pageable = PageRequest.of(page, size, Direction.ASC, "dueDate");
 
-        TasksResponse response = taskService.findTasks(pageable, search, status);
+        ListResponse<TaskResponse> response = taskService.findTasks(pageable, search, status);
 
         return ResponseEntity.ok(ApiResponseDto.success("업무 리스트 조회에 성공하였습니다.", response));
     }
