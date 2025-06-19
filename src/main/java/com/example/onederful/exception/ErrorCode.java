@@ -23,7 +23,12 @@ public enum ErrorCode {
 
     // Comment
     NONEXISTENT_COMMENT(HttpStatus.BAD_REQUEST, "존재하지 않는 댓글입니다."),
-    INVALID_COMMENT(HttpStatus.BAD_REQUEST, "삭제된 댓글입니다.");
+    INVALID_COMMENT(HttpStatus.BAD_REQUEST, "삭제된 댓글입니다."),
+
+    // Log
+    INVALID_OR_EXPIRED_REQUEST(HttpStatus.BAD_REQUEST,"요청 정보가 유효하지 않거나 만료되었습니다."),
+    INVALID_ACTIVITY(HttpStatus.BAD_REQUEST,"알 수 없는 활동 유형입니다.");
+
 
     private final HttpStatus status;
     private final String message;
