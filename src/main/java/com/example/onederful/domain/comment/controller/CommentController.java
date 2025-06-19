@@ -26,10 +26,10 @@ public class CommentController {
     @PostMapping("/tasks/{task_id}/comments")
     public ResponseEntity<ApiResponseDto> save(@PathVariable Long task_id, HttpServletRequest httpServletRequest, @RequestBody CommentRequestDto requestDto){
 
-        CreateCommentResponseDataDto createCommentResponseDataDto =
+        CommentResponseDataDto CommentResponseDataDto =
                 commentService.save(task_id, httpServletRequest, requestDto.getContent());
 
-        ApiResponseDto success = ApiResponseDto.success("댓글이 생성되었습니다,", createCommentResponseDataDto);
+        ApiResponseDto success = ApiResponseDto.success("댓글이 생성되었습니다,", CommentResponseDataDto);
 
         return ResponseEntity.status(HttpStatus.OK).body(success);
     }
@@ -40,28 +40,16 @@ public class CommentController {
             @PathVariable Long task_id, @PathVariable Long comment_id, @RequestBody CommentRequestDto requestDto, HttpServletRequest httpServletRequest
     ) {
 
-        UpdateCommentResponseDataDto updateCommentResponseDataDto =
+        CommentResponseDataDto CommentResponseDataDto =
                 commentService.updateComment(task_id, comment_id, requestDto.getContent(), httpServletRequest);
 
-        ApiResponseDto success = ApiResponseDto.success("댓글이 수정되었습니다.", updateCommentResponseDataDto);
+        ApiResponseDto success = ApiResponseDto.success("댓글이 수정되었습니다.", CommentResponseDataDto);
 
         return ResponseEntity.status(HttpStatus.OK).body(success);
     }
 
-    // 테스크별 댓글 조회
+    // 댓글 조회 (테스크별)
     @GetMapping("/tasks/{task_id}/comments")
-    public ResponseEntity<ApiResponseDto> findAllCommentByTaskId(
-            @PathVariable Long task_id) {
-
-        List<CommentResponseDataDto> commentResponseDataDtoList = commentService.findAllCommentByTaskId(task_id);
-
-        ApiResponseDto success = ApiResponseDto.success("task " + task_id + "에 달린 댓글 목록", commentResponseDataDtoList);
-
-        return ResponseEntity.status(HttpStatus.OK).body(success);
-    }
-
-    // 테스크별 댓글 조회 페이지화
-    @GetMapping("/tasks/{task_id}/comments/pages")
     public ResponseEntity<ApiResponseDto> findAllCommentByTaskIdInPage(
             @PathVariable Long task_id,
             @RequestParam(defaultValue = "0") int page,
@@ -70,12 +58,12 @@ public class CommentController {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<CommentResponseDataDto> commentResponseDtoInPage = commentService.findAllCommentByTaskIdInPage(task_id,pageable);
 
-        ApiResponseDto success = ApiResponseDto.success("task " + task_id + "에 달린 댓글 목록", commentResponseDtoInPage);
+        ApiResponseDto success = ApiResponseDto.success("댓글 목록을 조회했습니다.", commentResponseDtoInPage);
 
         return ResponseEntity.status(HttpStatus.OK).body(success);
     }
 
-    // 내용으로 댓글 조회
+    // 댓글 조회 (내용 검색)
     @GetMapping("/search")
     public ResponseEntity<ApiResponseDto> findCommentByContent(@RequestBody CommentRequestDto requestDto) {
 
