@@ -9,6 +9,7 @@ import com.example.onederful.domain.log.enums.Method;
 import com.example.onederful.domain.log.repository.LogRepository;
 import com.example.onederful.domain.log.repository.LogSpecification;
 import com.example.onederful.domain.task.dto.response.TaskResponse;
+import com.example.onederful.domain.user.dto.Tokeninfo;
 import com.example.onederful.domain.user.entity.User;
 import com.example.onederful.domain.user.repository.UserRepository;
 import com.example.onederful.exception.CustomException;
@@ -65,38 +66,38 @@ public class LogService {
     }
 
     // 로그인 시 로그 기록
-//    @Transactional
-//    public void saveLoginLog(String ip, Method method, String url, Object result) {
-//        // userId
-//        Long userId = null;
-//        if (result instanceof Tokeninfo) {
-//            String token = ((Tokeninfo) result).getToken();
-//            userId = jwtUtil.extractAllClaims(token).get("id", Long.class);
-//        }
-//
-//        // 현재 유저 조회
-//        User user = userRepositry.findById(userId).orElseThrow(
-//            () -> new CustomException(ErrorCode.UNAUTHORIZED)
-//        );
-//
-//        // 활동 유형
-//        Activity activity = Activity.USER_LOGGED_IN;
-//
-//        // 대상 id
-//        Long targetId = userId;
-//
-//        // 로그 DB에 저장
-//        Log log = Log.builder()
-//            .user(user)
-//            .activity(activity)
-//            .ipAddress(ip)
-//            .method(method)
-//            .targetId(targetId)
-//            .requestUrl(url)
-//            .build();
-//
-//        logRepository.save(log);
-//    }
+   @Transactional
+   public void saveLoginLog(String ip, Method method, String url, Object result) {
+       // userId
+       Long userId = null;
+       if (result instanceof Tokeninfo) {
+           String token = ((Tokeninfo) result).getToken();
+           userId = jwtUtil.extractAllClaims(token).get("id", Long.class);
+       }
+
+       // 현재 유저 조회
+       User user = userRepositry.findById(userId).orElseThrow(
+           () -> new CustomException(ErrorCode.UNAUTHORIZED)
+       );
+
+       // 활동 유형
+       Activity activity = Activity.USER_LOGGED_IN;
+
+       // 대상 id
+       Long targetId = userId;
+
+       // 로그 DB에 저장
+       Log log = Log.builder()
+           .user(user)
+           .activity(activity)
+           .ipAddress(ip)
+           .method(method)
+           .targetId(targetId)
+           .requestUrl(url)
+           .build();
+
+       logRepository.save(log);
+   }
 
     // 생성, 수정, 삭제 시 로그 기록
     @Transactional

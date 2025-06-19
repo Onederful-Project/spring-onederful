@@ -43,15 +43,15 @@ public class LoggingAspect {
     }
 
     // 로그인 시 자동 로그 기록
-//	@AfterReturning(pointcut = "loginMethod()", returning = "result")
-//	public void logLoginMethod(Object result) {
-//
-//		// HttpServletRequest으로부터 요청 ip, 메서드, url
-//		HttpRequestUtil.RequestInfo request = httpRequestUtil.getRequestInfo();
-//
-//		// 로그 저장
-//		logService.saveLoginLog(request.getIp(), request.getMethod(), request.getUrl(), result);
-//	}
+	@AfterReturning(pointcut = "loginMethod()", returning = "result")
+	public void logLoginMethod(Object result) {
+
+		// HttpServletRequest으로부터 요청 ip, 메서드, url
+		HttpRequestUtil.RequestInfo request = httpRequestUtil.getRequestInfo();
+
+		// 로그 저장
+		logService.saveLoginLog(request.getIp(), request.getMethod(), request.getUrl(), result);
+	}
 
     // 생성, 수정, 삭제 시 자동 로그 기록
     @AfterReturning(pointcut = "cudMethods()", returning = "result")
