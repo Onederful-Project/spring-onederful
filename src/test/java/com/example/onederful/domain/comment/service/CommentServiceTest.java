@@ -1,7 +1,6 @@
 package com.example.onederful.domain.comment.service;
 
-import com.example.onederful.domain.comment.dto.CreateCommentResponseDataDto;
-import com.example.onederful.domain.comment.dto.UpdateCommentResponseDataDto;
+import com.example.onederful.domain.comment.dto.CommentResponseDataDto;
 import com.example.onederful.domain.comment.entity.Comment;
 import com.example.onederful.domain.comment.repository.CommentRepository;
 import com.example.onederful.domain.task.entity.Task;
@@ -16,7 +15,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -68,7 +66,7 @@ class CommentServiceTest {
         given(taskRepository.findById(task_id)).willReturn(Optional.of(task));
         given(commentRepository.save(any(Comment.class))).willReturn(comment);
         // when
-        CreateCommentResponseDataDto result = commentService.save(task_id, httpServletRequest, content);
+        CommentResponseDataDto result = commentService.save(task_id, httpServletRequest, content);
 
         // then
         assertThat(result.getContent()).isEqualTo(content);
@@ -103,11 +101,11 @@ class CommentServiceTest {
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
 
         // when
-        UpdateCommentResponseDataDto result = commentService.updateComment(taskId, commentId, updatedContent, httpServletRequest);
+        CommentResponseDataDto result = commentService.updateComment(taskId, commentId, updatedContent, httpServletRequest);
 
         // then
         assertThat(result.getContent()).isEqualTo(updatedContent);
-        assertThat(result.getUpdated_at()).isNotNull();
+        assertThat(result.getUpdatedAt()).isNotNull();
 
     }
 
