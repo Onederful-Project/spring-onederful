@@ -88,7 +88,8 @@ public class DashboardRepositoryImpl implements DashboardRepository {
 
         double taskDoneRate = 0.0;
         if(total != 0L){
-            taskDoneRate = (double) done / total * 100;
+            taskDoneRate = Math.round((double) done / total * 100 * 100) / 100.0;
+
         }
 
         return StatisticsResponseDto.builder()
