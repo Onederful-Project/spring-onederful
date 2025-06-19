@@ -45,7 +45,7 @@ public class TaskService {
             .assignee(manager)
             .user(me)
             .status(ProcessStatus.TODO)
-            .dueDate(request.getDueDate().toLocalDateTime())
+            .dueDate(request.getDueDate())
             .build();
 
         Task savedTask = taskRepository.save(task);
@@ -110,7 +110,7 @@ public class TaskService {
 
         task.updateTask(request.getTitle(), request.getDescription(), request.getPriority(),
             assignee,
-            request.getDueDate().toLocalDateTime(), request.getStatus());
+            request.getDueDate(), request.getStatus());
 
         return TaskResponse.of(task);
     }
