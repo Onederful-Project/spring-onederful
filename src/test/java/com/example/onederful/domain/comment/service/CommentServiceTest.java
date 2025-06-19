@@ -1,6 +1,7 @@
 package com.example.onederful.domain.comment.service;
 
 import com.example.onederful.domain.comment.dto.CreateCommentResponseDataDto;
+import com.example.onederful.domain.comment.dto.UpdateCommentResponseDataDto;
 import com.example.onederful.domain.comment.entity.Comment;
 import com.example.onederful.domain.comment.repository.CommentRepository;
 import com.example.onederful.domain.task.entity.Task;
@@ -17,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -78,16 +80,34 @@ class CommentServiceTest {
     @DisplayName("새로운 댓글내용 입력했을때 그 값으로 변하는지 안하는지")
     void updateComment() {
         // given
+        Long taskId = 5L;
+        Long commentId = 1L;
+        Long userId = 10L;
+        String originalContent = "기존 댓글 입니다.";
+        String updatedContent = " 수정된 댓글 입니다.";
+        HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
 
+        Task task = mock(Task.class);
+        User user = mock(User.class);
+        Comment comment = Comment.builder()
+                .id(commentId)
+                .content(originalContent)
+                .user(user)
+                .task(task)
+                .isDeleted(false)
+                .build();
 
+        given(taskRepository.findById(taskId)).willReturn(Optional.of(task));
+        given(commentRepository.findById(commentId)).willReturn(Optional.of(comment));
+        given(jwtUtil.extractId(httpServletRequest)).willReturn(userId);
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
 
         // when
-
+        UpdateCommentResponseDataDto result = commentService.updateComment(taskId, commentId, updatedContent, httpServletRequest);
 
         // then
-
-
-
+        assertThat(result.getContent()).isEqualTo(updatedContent);
+        assertThat(result.getUpdated_at()).isNotNull();
 
     }
 
@@ -104,6 +124,22 @@ class CommentServiceTest {
     }
 
     @Test
+    @DisplayName("댓글이 삭제 되는지")
     void deleteComment() {
+        // given
+        Long commentId = 1L;
+        LocalDateTime later = LocalDateTime.now().plusMinutes(1);
+        Comment comment = Comment.builder()
+                .id(commentId)
+                .isDeleted(false)
+                .build();
+        given(commentRepository.findById(commentId)).willReturn(Optional.of(comment));
+
+        // when
+        commentService.deleteComment(commentId);
+
+        // then
+        assertThat(comment.getIsDeleted()).isEqualTo(true);
+        assertThat(comment.getDeletedAt()).isBefore(later);
     }
 }
