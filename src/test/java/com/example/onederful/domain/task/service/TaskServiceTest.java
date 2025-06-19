@@ -17,7 +17,6 @@ import com.example.onederful.domain.user.repository.UserRepository;
 import com.example.onederful.security.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
@@ -58,7 +57,7 @@ public class TaskServiceTest {
             .description("description")
             .priority(Priority.LOW)
             .assigneeId(1L)
-            .dueDate(OffsetDateTime.parse("2027-04-02T23:59:59Z"))
+            .dueDate(LocalDateTime.of(2027, 4, 2, 23, 59, 59))
             .build();
 
         HttpServletRequest httpServletRequest = new MockHttpServletRequest();
@@ -91,7 +90,7 @@ public class TaskServiceTest {
             .assignee(manager)
             .user(me)
             .status(ProcessStatus.TODO)
-            .dueDate(request.getDueDate().toLocalDateTime())
+            .dueDate(request.getDueDate())
             .build();
 
         ReflectionTestUtils.setField(task, "createdAt", LocalDateTime.now());
@@ -298,7 +297,7 @@ public class TaskServiceTest {
             .priority(Priority.LOW)
             .assigneeId(1L)
             .status(ProcessStatus.IN_PROGRESS)
-            .dueDate(OffsetDateTime.parse("2027-04-02T23:59:59Z"))
+            .dueDate(LocalDateTime.of(2027, 4, 2, 23, 59, 59))
             .build();
 
         Long userId = 1L;
