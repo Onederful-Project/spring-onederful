@@ -15,6 +15,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -23,8 +26,9 @@ public class UserService {
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
 
-    @Transactional
+
     // 회원가입
+    @Transactional
     public UserResponseDto signup(RequestDto dto){
         
         // 이메일 중복 확인
@@ -72,8 +76,9 @@ public class UserService {
         return token(token);
     }
 
-    @Transactional
+
     // 회원 정보 조회
+    @Transactional
     public UserResponseDto select(HttpServletRequest request){
 
         // 토큰에서 Id 가져오기
@@ -86,8 +91,9 @@ public class UserService {
         return UserMapper.data(user);
     }
 
-    @Transactional
+
     // 회원 탈퇴
+    @Transactional
     public void withdraw(HttpServletRequest request , RequestDto dto){
         // 토큰에서 Id 가져오기
         Long userId = jwtUtil.extractId(request);
@@ -105,6 +111,24 @@ public class UserService {
 
         user.delete();
     }
+
+
+    // 모든 회원 정보 조회
+    public List<UserResponseDto> selectAll(){
+
+        List<UserResponseDto> result = new ArrayList<>();
+
+        List<User> all = userRepository.findAll();
+
+        for(User user : all){
+            result.add(UserMapper.data(user));
+        }
+
+        return result;
+
+    }
+
+
 
 
     // ResponseBody date (Token)
