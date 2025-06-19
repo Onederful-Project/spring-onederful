@@ -42,7 +42,11 @@ public class HttpRequestUtil {
 		String url = request.getRequestURI();
 
 		// 토큰으로부터 요청한 사용자의 userId
-		Long userId = jwtUtil.extractId(request);
+		Long userId = null;
+		// 로그인, 회원가입 등 토큰 체크 안 할 URL 처리
+		if (!url.startsWith("/api/auth/login") && !url.startsWith("/api/auth/register")) {
+			userId = jwtUtil.extractId(request);
+		}
 
 		return new RequestInfo(ip, enumMethod, url, userId);
 	}
