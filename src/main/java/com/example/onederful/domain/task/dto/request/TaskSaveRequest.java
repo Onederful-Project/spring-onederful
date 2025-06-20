@@ -1,8 +1,6 @@
 package com.example.onederful.domain.task.dto.request;
 
-import com.example.onederful.domain.task.common.UpdateGroup;
 import com.example.onederful.domain.task.enums.Priority;
-import com.example.onederful.domain.task.enums.ProcessStatus;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -28,8 +26,8 @@ public class TaskSaveRequest {
     @NotNull(message = "관리자 선택은 필수 항목입니다.")
     private Long assigneeId;
 
-    @NotNull(groups = {UpdateGroup.class}, message = "업무의 상태는 필수 항목입니다.")
-    private ProcessStatus status;
+    //@NotNull(groups = {UpdateGroup.class}, message = "업무의 상태는 필수 항목입니다.")
+    //private ProcessStatus status;
 
     @NotNull(message = "마감일은 필수 항목입니다.")
     @FutureOrPresent(message = "마감일은 오늘이후만 가능합니다.")
