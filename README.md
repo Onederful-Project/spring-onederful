@@ -94,6 +94,14 @@ SECRET_KEY=your_jwt_secret_key
 
 <hr>
 
+## ✨SQL 실행방법
+
+- 데이터베이스 자동생성 X
+- `onederful.sql` 을 본인 데이터베이스에서 실행시켜서 수동 적용합니다.
+- `onederful.sql` 은 최상위 경로에 있습니다.
+
+<hr>
+
 ## 🪄 트러블 슈팅
 
 ### USER 도메인
