@@ -106,11 +106,9 @@ public class TaskService {
         User assignee = userRepository.findById(request.getAssigneeId())
             .orElseThrow(() -> new CustomException(ErrorCode.NONEXISTENT_USER));
 
-        //taskUpdateValid(task, request.getStatus());
-
         task.updateTask(request.getTitle(), request.getDescription(), request.getPriority(),
             assignee,
-            request.getDueDate());//, request.getStatus());
+            request.getDueDate());
 
         return TaskResponse.of(task);
     }
