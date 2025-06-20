@@ -32,15 +32,14 @@ public class UserService {
     public UserResponseDto signup(RequestDto dto){
         
         // 이메일 중복 확인
-        if(userRepository.existsByEmail(dto.getEmail())){
-            throw new CustomException(ErrorCode.DUPLICATE_EMAIL);
-        }
-
+        userRepository.findByEmail(dto.getEmail()).ifPresent(
+                user -> {throw new CustomException(ErrorCode.DUPLICATE_EMAIL);}
+        );
 
         // 아이디 중복 확인
-        if(userRepository.existsByUsername(dto.getUsername())){
-            throw new CustomException(ErrorCode.DUPLICATE_USER);
-        }
+        userRepository.findByUsername(dto.getUsername()).ifPresent(
+                user -> {throw new CustomException(ErrorCode.DUPLICATE_USER);}
+        );
 
         // Dto → Entity
         User user = UserMapper.user(dto);
