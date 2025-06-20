@@ -85,13 +85,12 @@ public class Task {
     private Boolean isDeleted = false;
 
     public void updateTask(String title, String content, Priority priority, User assignee,
-        LocalDateTime dueDate) { //,ProcessStatus status) {
+        LocalDateTime dueDate) {
         this.title = title;
         this.description = content;
         this.priority = priority;
         this.assignee = assignee;
         this.dueDate = dueDate;
-        //this.status = status;
     }
 
     public void updateTaskStatus(ProcessStatus status) {

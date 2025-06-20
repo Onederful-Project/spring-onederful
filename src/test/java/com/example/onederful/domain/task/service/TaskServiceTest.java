@@ -296,7 +296,6 @@ public class TaskServiceTest {
             .description("description")
             .priority(Priority.LOW)
             .assigneeId(1L)
-            .status(ProcessStatus.IN_PROGRESS)
             .dueDate(LocalDateTime.of(2027, 4, 2, 23, 59, 59))
             .build();
 
